@@ -1,9 +1,6 @@
-import Universe3D from '@/components/Universe3D';
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return (
-    <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
-      <Universe3D />
-    </div>
-  );
+export default function Index() {
+  redirect("/feed");
+  return null;
 }
