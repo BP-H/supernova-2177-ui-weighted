@@ -247,6 +247,11 @@ def _sidebar_nav_buttons() -> None:
     _btn("Decisions", "✅")
     _btn("Execution", "⚙️")
 
+    pages_map = st.session_state.get("__pages_map__", {})
+    for label, icon in [("Coin", "🪙"), ("Forks", "🍴"), ("Remixes", "🎛️")]:
+        if label in pages_map:
+            _btn(label, icon)
+
     st.divider()
     st.subheader("Premium features")
     _btn("Music", "🎶", "premium")

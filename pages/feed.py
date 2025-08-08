@@ -6,6 +6,11 @@ from faker import Faker
 import time
 import random
 
+from services.coin_adapter import get_balance as coin_get_balance, tip as coin_tip, reward as coin_reward
+from services.coin_config import DEFAULT_REWARD_SPLIT
+from services.reactor_adapter import record_reaction, get_reactions
+from services.remix_adapter import create_remix
+
 fake = Faker()
 
 @st.cache_data
@@ -62,6 +67,70 @@ def render_post(post):
         st.button("🔁 Repost", key=f"repost_{post['id']}", use_container_width=True)
     with send_col:
         st.button("➡️ Send", key=f"send_{post['id']}", use_container_width=True)
+
+    # --- new actions ---------------------------------------------------------
+    react_col, remix_col, tip_col, reward_col = st.columns(4)
+    user = st.session_state.get("username", "anon")
+    try:
+        post_id_int = int(str(post["id"]).split("_")[1])
+    except Exception:
+        post_id_int = abs(hash(post["id"])) % (10**6)
+
+    with react_col:
+        if st.button("👍 React", key=f"react_{post_id_int}_btn_v2", use_container_width=True):
+            res = record_reaction(post_id_int, user, "up")
+            if not res.get("available", True):
+                st.warning("Reaction service unavailable", icon="⚠️")
+        counts = get_reactions(post_id_int)
+        st.caption(f"👍 {counts.get('counts', {}).get('up', 0)}")
+
+    with remix_col:
+        note = st.text_input(
+            "note",
+            key=f"remix_{post_id_int}_note_v2",
+            label_visibility="collapsed",
+        )
+        if st.button("🎛️ Remix", key=f"remix_{post_id_int}_btn_v2", use_container_width=True):
+            res = create_remix(post_id_int, user, note)
+            if res.get("ok"):
+                st.success(f"Remix {res.get('new_post_id')} created")
+            else:
+                st.error("Remix failed")
+
+    with tip_col:
+        amt = st.number_input(
+            "amt",
+            min_value=0.0,
+            key=f"tip_{post_id_int}_amount_v2",
+            label_visibility="collapsed",
+        )
+        memo = st.text_input(
+            "memo",
+            key=f"tip_{post_id_int}_memo_v2",
+            label_visibility="collapsed",
+        )
+        if st.button("💰 Tip", key=f"tip_{post_id_int}_btn_v2", use_container_width=True):
+            res = coin_tip(user, post.get("author_name", ""), amt, memo or None)
+            if res.get("ok"):
+                bal = coin_get_balance(user)
+                st.success(f"Balance: {bal.get('balance', 0):.2f}")
+            else:
+                st.error("Tip failed")
+
+    with reward_col:
+        can_reward = user == post.get("author_name") or st.session_state.get("is_admin")
+        disabled = not can_reward
+        if st.button(
+            "🏆 Reward",
+            key=f"reward_{post_id_int}_btn_v2",
+            use_container_width=True,
+            disabled=disabled,
+        ):
+            res = coin_reward(post_id_int, DEFAULT_REWARD_SPLIT)
+            if res.get("ok"):
+                st.success("Rewarded")
+            else:
+                st.error("Reward failed")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
