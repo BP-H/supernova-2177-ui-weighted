@@ -3,26 +3,17 @@ from __future__ import annotations
 import os
 import streamlit as st
 
+from utils.api_keys import get_api_key
+
 PAGE = "agents"  # prefix so all widget keys on this page are unique
 
 
 def _default_openai_key() -> str:
-    """Prefer session -> secrets -> env, but never crash if secrets.toml is absent."""
-    # 1) session
-    val = st.session_state.get("openai_api_key")
+    """Prefer session -> secrets/env via helper; never crash if missing."""
+    val = st.session_state.get("openai_api_key_v2")
     if isinstance(val, str) and val.strip():
         return val.strip()
-
-    # 2) secrets (guarded so it doesn't raise when file doesn't exist)
-    try:
-        secret = st.secrets["openai_api_key"]  # type: ignore[index]
-        if isinstance(secret, str) and secret.strip():
-            return secret.strip()
-    except Exception:
-        pass
-
-    # 3) environment
-    return os.environ.get("OPENAI_API_KEY", "").strip()
+    return get_api_key("OPENAI_API_KEY")
 
 
 def render() -> None:
@@ -34,13 +25,13 @@ def render() -> None:
             value=_default_openai_key(),
             type="password",
             placeholder="sk-...",
-            key=f"{PAGE}_openai_api_key",  # ONE unique key only
+            key=f"{PAGE}_openai_api_key_v2",  # ensure unique key
         )
         saved = st.form_submit_button("Save")
 
     if saved:
-        st.session_state["openai_api_key"] = key_input.strip()
-        os.environ["OPENAI_API_KEY"] = st.session_state["openai_api_key"]
+        st.session_state["openai_api_key_v2"] = key_input.strip()
+        os.environ["OPENAI_API_KEY"] = st.session_state["openai_api_key_v2"]
         st.success("Saved. Agents will use this key.")
 
     st.caption(

@@ -7,6 +7,8 @@ try:  # Optional streamlit import for reading secrets during runtime
 except Exception:  # pragma: no cover - not available outside Streamlit
     st = None
 
+from utils.api_keys import get_api_key
+
 
 def dummy_backend(prompt: str, api_key: str | None = None) -> str:
     """Return a canned response for testing."""
@@ -16,7 +18,7 @@ def dummy_backend(prompt: str, api_key: str | None = None) -> str:
 def gpt4o_backend(prompt: str, api_key: str | None = None) -> str:
     """Call OpenAI GPT-4o and return the response text."""
     if api_key is None:
-        api_key = os.getenv("OPENAI_API_KEY", "")
+        api_key = get_api_key("OPENAI_API_KEY")
     if not api_key:
         raise ValueError("OPENAI_API_KEY required for GPT-4o backend")
     url = "https://api.openai.com/v1/chat/completions"
@@ -30,7 +32,7 @@ def gpt4o_backend(prompt: str, api_key: str | None = None) -> str:
 def claude3_backend(prompt: str, api_key: str | None = None) -> str:
     """Call Anthropic Claude-3 and return the response text."""
     if api_key is None:
-        api_key = os.getenv("ANTHROPIC_API_KEY", "")
+        api_key = get_api_key("ANTHROPIC_API_KEY")
     if not api_key:
         raise ValueError("ANTHROPIC_API_KEY required for Claude-3 backend")
     url = "https://api.anthropic.com/v1/messages"
@@ -47,7 +49,7 @@ def claude3_backend(prompt: str, api_key: str | None = None) -> str:
 def _gemini_backend(prompt: str, api_key: str | None = None) -> str:
     """Call Google Gemini and return the response text."""
     if api_key is None:
-        api_key = os.getenv("GOOGLE_API_KEY", "")
+        api_key = get_api_key("GOOGLE_API_KEY")
     if not api_key:
         raise ValueError("GOOGLE_API_KEY required for Gemini backend")
     url = (
@@ -67,9 +69,7 @@ def default_gpt_backend(api_key: str | None = None) -> Callable[[str], str]:
     """Factory for OpenAI's GPT backend using ``gpt-3.5-turbo``."""
 
     if api_key is None:
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key and st is not None:
-            api_key = st.secrets.get("OPENAI_API_KEY", "")
+        api_key = get_api_key("OPENAI_API_KEY")
 
     def call(prompt: str) -> str:
         if not api_key:
@@ -91,9 +91,7 @@ def claude_backend(api_key: str | None = None) -> Callable[[str], str]:
     """Factory for Anthropic Claude backend."""
 
     if api_key is None:
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key and st is not None:
-            api_key = st.secrets.get("ANTHROPIC_API_KEY", "")
+        api_key = get_api_key("ANTHROPIC_API_KEY")
 
     def call(prompt: str) -> str:
         if not api_key:
@@ -115,9 +113,7 @@ def gemini_backend(api_key: str | None = None) -> Callable[[str], str]:
     """Factory for Google Gemini backend."""
 
     if api_key is None:
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key and st is not None:
-            api_key = st.secrets.get("GOOGLE_API_KEY", "")
+        api_key = get_api_key("GOOGLE_API_KEY")
 
     def call(prompt: str) -> str:
         if not api_key:

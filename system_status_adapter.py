@@ -6,24 +6,29 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
-import requests
+try:
+    import requests  # type: ignore
+except Exception:  # pragma: no cover - requests missing
+    requests = None  # type: ignore
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 OFFLINE_MODE = os.getenv("OFFLINE_MODE", "0") == "1"
 
 
-def get_status() -> Optional[Dict[str, Any]]:
+def get_status() -> Dict[str, Any]:
     """Fetch system status data from the backend API.
 
-    Returns ``None`` if offline mode is enabled or the request fails.
+    Always returns a dictionary containing ``available``.
     """
-    if OFFLINE_MODE:
-        return None
+    if OFFLINE_MODE or requests is None:
+        return {"available": False}
     try:
         resp = requests.get(f"{BACKEND_URL}/status", timeout=5)
         resp.raise_for_status()
-        return resp.json()
+        data = resp.json()
+        data["available"] = True
+        return data
     except Exception:
-        return None
+        return {"available": False}

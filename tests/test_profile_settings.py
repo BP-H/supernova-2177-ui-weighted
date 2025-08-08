@@ -15,8 +15,6 @@ from profile_adapter import update_profile_adapter  # noqa: E402
 
 @pytest.mark.requires_streamlit
 def test_update_profile_stub(monkeypatch):
-    st.session_state.clear()
-    st.session_state["use_backend"] = False
     called = {"count": 0}
 
     def fake_put(*args, **kwargs):
@@ -29,16 +27,14 @@ def test_update_profile_stub(monkeypatch):
         return Resp()
 
     monkeypatch.setattr("profile_adapter.requests.put", fake_put)
-    result = update_profile_adapter("hello", ["music"])
+    result = update_profile_adapter("hello", ["music"], use_backend=False)
     assert result["status"] == "stubbed"
+    assert result["available"]
     assert called["count"] == 0
 
 
 @pytest.mark.requires_streamlit
 def test_update_profile_backend(monkeypatch):
-    st.session_state.clear()
-    st.session_state["use_backend"] = True
-
     def fake_put(url, json, timeout):
         assert json == {"bio": "hello", "cultural_preferences": ["music"]}
 
@@ -49,13 +45,13 @@ def test_update_profile_backend(monkeypatch):
         return Resp()
 
     monkeypatch.setattr("profile_adapter.requests.put", fake_put)
-    result = update_profile_adapter("hello", ["music"])
+    result = update_profile_adapter("hello", ["music"], use_backend=True)
     assert result["status"] == "ok"
+    assert result["available"]
 
 
 @pytest.mark.requires_streamlit
 def test_update_profile_validation_error(monkeypatch):
-    st.session_state.clear()
-    st.session_state["use_backend"] = True
-    result = update_profile_adapter("", ["music"])
+    result = update_profile_adapter("", ["music"], use_backend=True)
     assert result["status"] == "error"
+    assert result["available"]

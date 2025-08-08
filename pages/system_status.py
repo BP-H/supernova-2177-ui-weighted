@@ -13,14 +13,14 @@ from system_status_adapter import get_status
 def main() -> None:
     """Render system status metrics using Streamlit widgets."""
     use_backend = st.toggle("Enable backend", value=True, key="sys_status_toggle")
-    data = get_status() if use_backend else None
-    if not data or "metrics" not in data:
-        st.info("Backend disabled or unavailable.")
+    data = get_status() if use_backend else {"available": False}
+    if not data.get("available") or "metrics" not in data:
+        st.warning("Backend disabled or unavailable.")
         st.metric("Harmonizers", "N/A")
         st.metric("VibeNodes", "N/A")
         st.metric("Entropy", "N/A")
     else:
-        metrics = data["metrics"]
+        metrics = data.get("metrics", {})
         st.metric("Harmonizers", metrics.get("total_harmonizers", 0))
         st.metric("VibeNodes", metrics.get("total_vibenodes", 0))
         st.metric("Entropy", metrics.get("current_system_entropy", 0))

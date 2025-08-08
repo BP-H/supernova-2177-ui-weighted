@@ -6,6 +6,7 @@ import os
 
 import httpx
 
+from utils.api_keys import get_api_key
 from .base_client import BaseClient
 
 
@@ -14,7 +15,7 @@ class VideoClient(BaseClient):
 
     def __init__(self, api_url: str | None = None, api_key: str | None = None) -> None:
         url = api_url or os.getenv("VIDEO_API_URL", "")
-        key = api_key or os.getenv("VIDEO_API_KEY", "")
+        key = api_key or get_api_key("VIDEO_API_KEY")
         super().__init__(url, key)
 
     async def generate_video_preview(self, prompt: str) -> dict:
