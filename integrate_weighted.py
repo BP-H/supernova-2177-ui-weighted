@@ -1,4 +1,5 @@
 # integrate_weighted.py
+# ruff: noqa: E501
 """
 One-shot safe patcher:
 - Ensure weighted voting engine exists in superNova_2177.py
@@ -15,13 +16,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
+
 def read(p: Path) -> str:
     return p.read_text(encoding="utf-8") if p.exists() else ""
+
 
 def write(p: Path, s: str):
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(s, encoding="utf-8")
     print(f"[OK] updated {p.relative_to(ROOT)}")
+
 
 ENGINE_BLOCK = r"""
 # === WEIGHTED VOTING ENGINE (auto-added) =====================================
@@ -75,19 +79,20 @@ def decide_weighted_api(proposal_id: int, level: str="standard"):
     t.update({"proposal_id": int(proposal_id), "status": status, "threshold": thr})
     return t
 # === END WEIGHTED VOTING ENGINE ==============================================
-""".strip("\n")
+""".strip(
+    "\n"
+)
 
 SIDEBAR_SPECIES = r"""
     # --- identity (species) ---
     st.selectbox("I am a…", ["human","company","ai"], key="species")
-""".strip("\n")
+""".strip(
+    "\n"
+)
 
 PROPOSALS_PANEL = r"""
 # --- WEIGHTED VOTING PANEL (auto-added) --------------------------------------
-try:
-    from superNova_2177 import vote_weighted, tally_proposal_weighted  # engine lives here
-except Exception:  # fallback if renamed
-    from supernova_2177 import vote_weighted, tally_proposal_weighted  # type: ignore
+from services import voting_adapter
 
 def _weighted_panel_for_proposal(pid: int):
     import streamlit as st
@@ -95,36 +100,38 @@ def _weighted_panel_for_proposal(pid: int):
     c1, c2 = st.columns(2)
     with c1:
         if st.button(f"👍 Vote UP (weighted) #{pid}", key=f"wup_{pid}"):
-            vote_weighted(pid, st.session_state.get('username','anon'), 'up', species)
+            voting_adapter.register_vote(pid, st.session_state.get('username','anon'), 'up', species)
             st.rerun()
     with c2:
         if st.button(f"👎 Vote DOWN (weighted) #{pid}", key=f"wdown_{pid}"):
-            vote_weighted(pid, st.session_state.get('username','anon'), 'down', species)
+            voting_adapter.register_vote(pid, st.session_state.get('username','anon'), 'down', species)
             st.rerun()
-    t = tally_proposal_weighted(pid)
+    t = voting_adapter.tally_votes(pid)
     pct = (t['up']/t['total']*100) if t['total'] else 0.0
     st.caption(f"Weighted: {t['up']:.3f} ↑ / {t['down']:.3f} ↓ — total {t['total']:.3f}  ({pct:.1f}% yes)")
 # --- END WEIGHTED VOTING PANEL -----------------------------------------------
-""".strip("\n")
+""".strip(
+    "\n"
+)
 
 DECISIONS_PANEL = r"""
 # --- WEIGHTED DECISION PANEL (auto-added) ------------------------------------
-try:
-    from superNova_2177 import tally_proposal_weighted, decide_weighted_api
-except Exception:
-    from supernova_2177 import tally_proposal_weighted, decide_weighted_api  # type: ignore
+from services import voting_adapter
 
 def _weighted_decide_block(pid: int):
     import streamlit as st
     level = st.selectbox("Decision level", ["standard","important"], index=0, key=f"dec_level_{pid}")
-    t = tally_proposal_weighted(pid)
+    t = voting_adapter.tally_votes(pid)
     pct = (t['up']/t['total']*100) if t['total'] else 0.0
     st.caption(f"Weighted: {t['up']:.3f} ↑ / {t['down']:.3f} ↓ — total {t['total']:.3f}  ({pct:.1f}% yes)")
     if st.button(f"Decide (weighted) #{pid}", key=f"wdec_{pid}"):
-        res = decide_weighted_api(pid, level)
+        res = voting_adapter.decide_vote(pid, level)
         st.success(f\"{res['status'].upper()} at {int(res['threshold']*100)}% threshold\")
 # --- END WEIGHTED DECISION PANEL ---------------------------------------------
-""".strip("\n")
+""".strip(
+    "\n"
+)
+
 
 def patch_supernova_engine():
     # Try both names users used
@@ -142,6 +149,7 @@ def patch_supernova_engine():
     p = ROOT / "superNova_2177.py"
     base = "# superNova_2177 (auto-created shell)\n"
     write(p, base + "\n\n" + ENGINE_BLOCK + "\n")
+
 
 def patch_ui_sidebar_species():
     p = ROOT / "ui.py"
@@ -161,6 +169,7 @@ def patch_ui_sidebar_species():
     s2 = s[:insert_at] + SIDEBAR_SPECIES + "\n" + s[insert_at:]
     write(p, s2)
 
+
 def append_block_once(p: Path, marker_start: str, block_text: str):
     s = read(p)
     if not s:
@@ -172,6 +181,7 @@ def append_block_once(p: Path, marker_start: str, block_text: str):
     s2 = s.rstrip() + "\n\n" + block_text + "\n"
     write(p, s2)
 
+
 def patch_proposals_page():
     # Add the reusable panel function; your page should call _weighted_panel_for_proposal(pid)
     p = ROOT / "pages" / "proposals.py"
@@ -180,6 +190,7 @@ def patch_proposals_page():
     s = read(p)
     # If there's a "for pid in" looking loop, try to add a call
     pat = r"(for\s+.+?\s+in\s+.+?:\s*\n(?:[ \t].*\n)+)"
+
     def add_call(m):
         blk = m.group(1)
         if "_weighted_panel_for_proposal(" in blk:
@@ -189,11 +200,15 @@ def patch_proposals_page():
         indent = re.match(r"(\s*)", lines[-1]).group(1) if lines else "    "
         lines.append(indent + "_weighted_panel_for_proposal(pid)\n")
         return "".join(lines)
+
     s2 = re.sub(pat, add_call, s, count=1, flags=re.DOTALL)
     if s2 != s:
         write(p, s2)
     else:
-        print("[~] Could not auto-inject weighted call in proposals.py; call it where you render each proposal: _weighted_panel_for_proposal(pid)")
+        print(
+            "[~] Could not auto-inject weighted call in proposals.py; call it where you render each proposal: _weighted_panel_for_proposal(pid)"
+        )
+
 
 def patch_decisions_page():
     p = ROOT / "pages" / "decisions.py"
@@ -201,6 +216,7 @@ def patch_decisions_page():
     s = read(p)
     # Try to append a call near where proposals are iterated
     pat = r"(for\s+.+?\s+in\s+.+?:\s*\n(?:[ \t].*\n)+)"
+
     def add_call(m):
         blk = m.group(1)
         if "_weighted_decide_block(" in blk:
@@ -209,11 +225,15 @@ def patch_decisions_page():
         indent = re.match(r"(\s*)", lines[-1]).group(1) if lines else "    "
         lines.append(indent + "_weighted_decide_block(pid)\n")
         return "".join(lines)
+
     s2 = re.sub(pat, add_call, s, count=1, flags=re.DOTALL)
     if s2 != s:
         write(p, s2)
     else:
-        print("[~] Could not auto-inject weighted decision call; call it where you list each proposal: _weighted_decide_block(pid)")
+        print(
+            "[~] Could not auto-inject weighted decision call; call it where you list each proposal: _weighted_decide_block(pid)"
+        )
+
 
 def patch_agents_keys():
     p = ROOT / "pages" / "agents.py"
@@ -221,6 +241,7 @@ def patch_agents_keys():
     if not s:
         print("[i] pages/agents.py not found; skipping key fix.")
         return
+
     # add _v2 to any key="agents_*" that lacks it
     def repl(m):
         full = m.group(0)
@@ -228,11 +249,13 @@ def patch_agents_keys():
         if keyname.endswith("_v2"):
             return full
         return full.replace(keyname, keyname + "_v2")
+
     s2 = re.sub(r'key\s*=\s*"((?:agents_)[a-zA-Z0-9_]+)"', repl, s)
     if s2 != s:
         write(p, s2)
     else:
         print("[=] agents.py keys look unique already; no changes.")
+
 
 def main():
     patch_supernova_engine()
@@ -241,7 +264,10 @@ def main():
     patch_decisions_page()
     patch_agents_keys()
     print("\n[DONE] Run:  streamlit run ui.py --server.port 8888")
-    print("If a page still doesn’t show the weighted UI, add a call where you render each proposal:\n  _weighted_panel_for_proposal(pid)\n  _weighted_decide_block(pid)")
+    print(
+        "If a page still doesn’t show the weighted UI, add a call where you render each proposal:\n  _weighted_panel_for_proposal(pid)\n  _weighted_decide_block(pid)"
+    )
+
 
 if __name__ == "__main__":
     main()

@@ -4,6 +4,7 @@ import json
 import os
 import urllib.request
 import streamlit as st
+from services import voting_adapter
 
 
 # ----------------------- helpers -----------------------
@@ -38,10 +39,18 @@ try:
         list_decisions,
     )
 except Exception:
-    def list_proposals(): return []
-    def tally_proposal(pid): return {"up": 0, "down": 0}
-    def decide(pid, threshold=0.6): return {"proposal_id": pid, "status": "rejected"}
-    def list_decisions(): return []
+
+    def list_proposals():
+        return []
+
+    def tally_proposal(pid):
+        return {"up": 0, "down": 0}
+
+    def decide(pid, threshold=0.6):
+        return {"proposal_id": pid, "status": "rejected"}
+
+    def list_decisions():
+        return []
 
 
 # ----------------------- main UI -----------------------
@@ -52,7 +61,9 @@ def _standard_decisions_block() -> None:
     proposals = _get("/proposals") if _use_backend() else list_proposals()
     for p in proposals:
         pid = p["id"]
-        tally = _get(f"/proposals/{pid}/tally") if _use_backend() else tally_proposal(pid)
+        tally = (
+            _get(f"/proposals/{pid}/tally") if _use_backend() else tally_proposal(pid)
+        )
         up, down = int(tally.get("up", 0)), int(tally.get("down", 0))
         total = up + down
         pct = (up / total * 100) if total else 0.0
@@ -63,35 +74,28 @@ def _standard_decisions_block() -> None:
             st.success(f"Decision: {str(res.get('status', 'unknown')).upper()}")
 
 
-# ---------------- weighted (superNova_2177) -------------
-# Try both casings so we don't break either file name.
-try:
-    from superNova_2177 import tally_proposal_weighted, decide_weighted_api
-except Exception:
-    try:
-        from supernova_2177 import tally_proposal_weighted, decide_weighted_api  # type: ignore
-    except Exception:
-        # very safe stubs so the page keeps working if the module is missing
-        def tally_proposal_weighted(pid: int):
-            return {"up": 0.0, "down": 0.0, "total": 0.0}
-        def decide_weighted_api(pid: int, level: str):
-            return {"status": "rejected", "threshold": 0.6}
+# ---------------- weighted voting -----------------------
 
 
 def _weighted_decisions_block() -> None:
     st.subheader("Weighted decisions (Humans / Companies / AI)")
-    st.caption("Important=90% threshold · Standard=60% threshold (weighted by species pool)")
+    st.caption(
+        "Important=90% threshold · Standard=60% threshold (weighted by species pool)"
+    )
 
     proposals = _get("/proposals") if _use_backend() else list_proposals()
     for p in proposals:
         pid = p["id"]
         with st.expander(f"Proposal #{pid}: {p['title']}", expanded=False):
-            t = tally_proposal_weighted(pid)
+            t = voting_adapter.tally_votes(pid)
             total = float(t.get("total", 0.0)) or 0.0
             up = float(t.get("up", 0.0))
             down = float(t.get("down", 0.0))
             pct = (up / total * 100.0) if total else 0.0
-            st.caption(f"Weighted tally: {up:.3f} ↑ / {down:.3f} ↓ — total {total:.3f}  ({pct:.1f}% yes)")
+            st.caption(
+                f"Weighted tally: {up:.3f} ↑ / {down:.3f} ↓ — total {total:.3f}  "
+                f"({pct:.1f}% yes)"
+            )
 
             level = st.selectbox(
                 "Decision level",
@@ -100,7 +104,7 @@ def _weighted_decisions_block() -> None:
                 key=f"weighted_level_{pid}",
             )
             if st.button(f"Decide (weighted) #{pid}", key=f"wdec_{pid}"):
-                res = decide_weighted_api(pid, level)
+                res = voting_adapter.decide_vote(pid, level)
                 status = str(res.get("status", "unknown")).upper()
                 thr = float(res.get("threshold", 0.6))
                 st.success(f"{status} at {int(thr * 100)}% threshold")
