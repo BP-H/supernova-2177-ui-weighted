@@ -1,19 +1,26 @@
-export const metadata = { title: "superNova_2177", description: "Prototype UI" };
+import "./globals.css";
+import Link from "next/link";
 
-import "../app/globals.css";
-import Sidebar from "../components/Sidebar";
-import TopBar from "../components/TopBar";
+export const metadata = { title: "superNova_2177" };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <div className="min-h-screen flex">
-          <Sidebar />
-          <main className="flex-1 min-w-0">
-            <TopBar />
-            <div className="p-4 md:p-6">{children}</div>
-          </main>
+        <div className="app">
+          <aside className="sidebar">
+            <div className="brand">💫 superNova_2177</div>
+            <nav className="nav">
+              <Link href="/">Feed</Link>
+              <Link href="/chat">Chat</Link>
+              <Link href="/messages">Messages</Link>
+              <Link href="/profile">Profile</Link>
+              <Link href="/proposals">Proposals</Link>
+              <Link href="/decisions">Decisions</Link>
+              <Link href="/execution">Execution</Link>
+            </nav>
+          </aside>
+          <main className="content">{children}</main>
         </div>
       </body>
     </html>
