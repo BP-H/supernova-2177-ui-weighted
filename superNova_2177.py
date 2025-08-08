@@ -4144,11 +4144,18 @@ if __name__ == "__main__":
 
 # === WEIGHTED VOTING ENGINE (auto-added) =====================================
 from dataclasses import dataclass
-from typing import Literal, Dict, List
+from typing import Literal, Dict, List, Any
+
+from services.weights import SPECIES_WEIGHTS
 
 Species = Literal["human","company","ai"]
 DecisionLevel = Literal["standard","important"]
 THRESHOLDS: Dict[DecisionLevel, float] = {"standard": 0.60, "important": 0.90}
+
+def get_threshold(level: str) -> float:
+    """Return the decision threshold for the given level."""
+    lvl = "important" if level == "important" else "standard"
+    return THRESHOLDS[lvl]
 
 @dataclass
 class Vote:
@@ -4168,9 +4175,13 @@ def vote_weighted(proposal_id: int, voter: str, choice: str, species: str="human
 
 def _species_shares(active: List[Species]) -> Dict[Species, float]:
     present = sorted(set(active))
-    if not present: return {}
-    share = 1.0 / len(present)  # ⅓ each if all present; renormalized if not
-    return {s: share for s in present}
+    if not present:
+        return {}
+    weights = {s: SPECIES_WEIGHTS.get(s, 0.0) for s in present}
+    total = sum(weights.values())
+    if total <= 0:
+        return {s: 0.0 for s in present}
+    return {s: weights[s] / total for s in present}
 
 def tally_proposal_weighted(proposal_id: int):
     V = [v for v in _WEIGHTED_VOTES if v.proposal_id == int(proposal_id)]
@@ -4192,4 +4203,26 @@ def decide_weighted_api(proposal_id: int, level: str="standard"):
     status = "accepted" if (t["total"]>0 and (t["up"]/t["total"])>=thr) else "rejected"
     t.update({"proposal_id": int(proposal_id), "status": status, "threshold": thr})
     return t
+
+
+# --- Public wrappers -------------------------------------------------------
+def register_vote(proposal_id: int, voter: str, choice: str, species: str = "human") -> Dict[str, Any]:
+    """Record a vote using the weighted engine."""
+    return vote_weighted(proposal_id, voter, choice, species)
+
+
+def tally_votes(proposal_id: int) -> Dict[str, Any]:
+    """Return the weighted tally for a proposal."""
+    return tally_proposal_weighted(proposal_id)
+
+
+def get_threshold(level: str = "standard") -> float:
+    """Fetch the decision threshold for a given level."""
+    key = "important" if str(level).lower() == "important" else "standard"
+    return THRESHOLDS[key]
+
+
+def decide(proposal_id: int, level: str = "standard") -> Dict[str, Any]:
+    """Evaluate a proposal outcome using the weighted engine."""
+    return decide_weighted_api(proposal_id, level)
 # === END WEIGHTED VOTING ENGINE ==============================================

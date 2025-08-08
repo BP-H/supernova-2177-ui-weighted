@@ -3,7 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Literal, Tuple
 
-Species = Literal["human", "company", "agent"]
+from services.weights import SPECIES_WEIGHTS
+
+Species = Literal["human", "company", "ai"]
 DecisionLevel = Literal["standard", "important"]
 
 THRESHOLDS: Dict[DecisionLevel, float] = {"standard": 0.60, "important": 0.90}
@@ -16,11 +18,15 @@ class Vote:
     species: Species
 
 def _shares(active_species: List[Species]) -> Dict[Species, float]:
-    # equal share for species that are present, renormalized
+    # look up configured weights and renormalize among present species
     if not active_species:
         return {}
-    per = 1.0 / len(set(active_species))
-    return {s: per for s in set(active_species)}
+    present = set(active_species)
+    weights = {s: SPECIES_WEIGHTS.get(s, 0.0) for s in present}
+    total = sum(weights.values())
+    if total <= 0:
+        return {s: 0.0 for s in present}
+    return {s: weights[s] / total for s in present}
 
 def tally_weighted(votes: List[Vote], proposal_id: int) -> Tuple[float, float, float, Dict[str, float]]:
     # collect only this proposal's votes

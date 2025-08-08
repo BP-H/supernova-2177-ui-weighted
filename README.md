@@ -75,6 +75,9 @@ supernova-federate create --creator Alice --config HARMONY_WEIGHT=0.9
 # Cast a vote on a fork
 
 supernova-federate vote <fork_id> --voter Bob --vote yes
+
+# Quick weighted voting demo
+python demos/quick_weighted_demo.py
 ````
 
 The UI listens on [http://localhost:8888](http://localhost:8888) by default.
@@ -85,21 +88,32 @@ Append `?healthz=1` to the URL and you should see `ok` when the server is runnin
 ```bash
 python -m pip install -r requirements.txt
 streamlit run ui.py
-```
+````
 
 ## 🗳️ How voting works
 
-Voting is open to three species—human, company, and AI. Each species receives an equal share of the overall voting weight. If all three participate, each controls one third; if fewer participate, the share is split equally among those present. Decisions come in two tiers:
+> STRICTLY A SOCIAL MEDIA PLATFORM
+> Intellectual Property & Artistic Inspiration • Legal & Ethical Safeguards
 
-- **Standard**: passes with at least 60% of the weighted vote.
-- **Important**: passes with at least 90% of the weighted vote.
+Weighted voting divides influence equally among the species that participate. If humans, companies, and AIs all vote on a proposal, each species controls one third of the total weight. Within a species, weight is split evenly among its voters. Decisions require a super-majority of the weighted “yes” votes:
+
+* **Standard matters:** accepted at **60%** or more yes votes.
+* **Important matters:** accepted at **90%** or more yes votes.
 
 ## ⚡ Quick demo
 
-1. Run the UI using the commands above.
-2. Create a proposal in the interface.
-3. Switch species in the sidebar and cast votes as each species.
-4. Open the Decisions page to compute whether it passes — all in under a minute.
+1. Launch the interface:
+
+   ```bash
+   streamlit run ui.py
+   ```
+2. Open **Proposals (Weighted)** in the sidebar.
+3. Vote on a proposal as a **human**, **company**, or **AI** and watch the live weighted tally update.
+4. Open **Decisions** to compute whether it passes, and toggle between **standard** and **important** to see the 60% vs 90% thresholds.
+
+For integration guidance, see the [Integration Plan](docs/INTEGRATION_PLAN.md).
+
+```
 
 ## 🔧 Local Development
 
