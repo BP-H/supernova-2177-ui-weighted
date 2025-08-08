@@ -6,7 +6,6 @@ export default function Home() {
       <h2>Feed</h2>
       <p>Welcome to superNova_2177. Use the sidebar to navigate.</p>
 
-      {/* Demo posts so you see something change */}
       <div style={{marginTop:16, display:"grid", gap:12}}>
         {[1,2,3].map(i => (
           <article key={i} style={{
