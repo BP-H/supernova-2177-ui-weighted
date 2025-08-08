@@ -1017,7 +1017,10 @@ with left_col:
     with st.expander("Agent Configuration"):
         api_info = render_api_key_ui(key_prefix="devtools")
         backend_choice = api_info.get("model", "dummy")
-        api_key = api_info.get("api_key", "") or ""
+        api_key = api_info.get("api_key") or ""
+        run_agent_disabled = api_info.get("disabled", False)
+        if run_agent_disabled:
+            st.warning("API key required for selected model.")
         if AGENT_REGISTRY:
             agent_choice = st.selectbox(
                 "Agent",
@@ -1029,7 +1032,7 @@ with left_col:
             st.info("No agents registered")
         event_type = st.text_input("Event", value="LLM_INCOMING")
         payload_txt = st.text_area("Payload JSON", value="{}", height=100)
-        run_agent_clicked = st.button("Run Agent")
+        run_agent_clicked = st.button("Run Agent", disabled=run_agent_disabled)
     with st.expander("Simulation Tools"):
         render_simulation_stubs()
     st.divider()
