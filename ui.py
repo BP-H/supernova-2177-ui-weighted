@@ -3,6 +3,8 @@
 import os
 import importlib
 import importlib.util
+import argparse
+import sys
 from pathlib import Path
 from typing import Dict
 
@@ -46,11 +48,28 @@ PRIMARY_PAGES: Dict[str, str] = {
     "Proposals": "pages.proposals",
     "Decisions": "pages.decisions",
     "Execution": "pages.execution",
+    "Karma": "pages.karma",
+    "Harmonizer": "pages.harmonizer",
+    "Validators": "pages.validators",
     # Example to enable the 3D page:
     # "Enter Metaverse": "pages.enter_metaverse",
 }
 
 PAGES_DIR = Path(__file__).parent / "pages"
+
+
+def build_pages(pages_dir: Path) -> dict[str, str]:
+    """Return mapping of page labels to slugs for tests."""
+    pages: dict[str, str] = {}
+    if pages_dir.exists():
+        for path in pages_dir.glob("*.py"):
+            slug = path.stem
+            label = slug.replace("_", " ").title()
+            pages[label] = slug
+    return pages
+
+
+PAGES = build_pages(PAGES_DIR)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -73,6 +92,24 @@ def _using_real_backend() -> bool:
 
 def _current_backend_url() -> str:
     return st.session_state.get("backend_url", os.environ.get("BACKEND_URL", "http://127.0.0.1:8000"))
+
+
+def _determine_backend(argv=None, env=None) -> bool:
+    """Legacy helper to decide backend usage for tests."""
+    if argv is None:
+        argv = sys.argv[1:]
+    if env is None:
+        env = os.environ
+    parser = argparse.ArgumentParser(add_help=False)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--use-backend", dest="use_backend", action="store_true")
+    group.add_argument("--no-backend", dest="use_backend", action="store_false")
+    parser.set_defaults(use_backend=None)
+    args, _ = parser.parse_known_args(argv)
+    if args.use_backend is not None:
+        return args.use_backend
+    val = env.get("USE_REAL_BACKEND")
+    return val.strip().lower() in {"1", "true", "yes", "on"} if val else False
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -244,6 +281,9 @@ def _sidebar_nav_buttons() -> None:
     _btn("Proposals", "📑")
     _btn("Decisions", "✅")
     _btn("Execution", "⚙️")
+    _btn("Karma", "🌟")
+    _btn("Harmonizer", "🎛️")
+    _btn("Validators", "🛡️")
 
     st.divider()
     st.subheader("Premium features")
