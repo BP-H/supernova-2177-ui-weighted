@@ -90,6 +90,24 @@ python -m pip install -r requirements.txt
 streamlit run ui.py
 ````
 
+## 🔗 How to open the new pages
+
+> STRICTLY A SOCIAL MEDIA PLATFORM  
+> Intellectual Property & Artistic Inspiration  
+> Legal & Ethical Safeguards
+
+Launch the Streamlit server:
+
+```bash
+streamlit run ui.py
+```
+
+Then navigate using the sidebar:
+
+1. **Karma:** `Sidebar → Karma`
+2. **Harmonizer:** `Sidebar → Harmonizer`
+3. **Validators:** `Sidebar → Validators`
+
 ## 🗳️ How voting works
 
 > STRICTLY A SOCIAL MEDIA PLATFORM
