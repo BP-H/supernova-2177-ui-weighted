@@ -5,8 +5,9 @@ export default function Home() {
     <main style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
       <h1 style={{ fontSize: 28, marginBottom: 16 }}>superNova_2177</h1>
       <p style={{ opacity: 0.8, marginBottom: 24 }}>
-        Welcome to the gateway. Choose your reality.
+        welcome to the gateway. choose your reality.
       </p>
+
       <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
         <Link
           href="/multiverse"
@@ -18,18 +19,20 @@ export default function Home() {
             textDecoration: 'none'
           }}
         >
-          Enter Multiverse →
+          enter multiverse →
         </Link>
+
         <Link
           href="/feed"
           style={{
             padding: '10px 14px',
             borderRadius: 12,
             border: '1px solid #2e374d',
+            color: '#2e374d',
             textDecoration: 'none'
           }}
         >
-          Regular Feed →
+          regular feed →
         </Link>
       </div>
     </main>
