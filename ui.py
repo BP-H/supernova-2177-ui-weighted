@@ -46,6 +46,8 @@ PRIMARY_PAGES: Dict[str, str] = {
     "Proposals": "pages.proposals",
     "Decisions": "pages.decisions",
     "Execution": "pages.execution",
+    "Karma": "pages.karma",
+
     # Example to enable the 3D page:
     # "Enter Metaverse": "pages.enter_metaverse",
 }

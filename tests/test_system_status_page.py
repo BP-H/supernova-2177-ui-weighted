@@ -22,7 +22,7 @@ def test_status_page_placeholders_when_disabled(monkeypatch):
     dummy_st = types.SimpleNamespace(
         toggle=lambda *a, **k: False,
         metric=lambda label, value: metrics.append((label, value)),
-        info=lambda *a, **k: None,
+        warning=lambda *a, **k: None,
     )
     monkeypatch.setattr(status_page, "st", dummy_st)
     status_page.main()
@@ -36,15 +36,16 @@ def test_status_page_shows_metrics(monkeypatch):
     dummy_st = types.SimpleNamespace(
         toggle=lambda *a, **k: True,
         metric=lambda label, value: metrics.append((label, value)),
-        info=lambda *a, **k: None,
+        warning=lambda *a, **k: None,
     )
     monkeypatch.setattr(status_page, "st", dummy_st)
     sample = {
+        "available": True,
         "metrics": {
             "total_harmonizers": 3,
             "total_vibenodes": 5,
             "current_system_entropy": 0.42,
-        }
+        },
     }
     monkeypatch.setattr(status_page, "get_status", lambda: sample)
     status_page.main()

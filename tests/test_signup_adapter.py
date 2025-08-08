@@ -13,12 +13,12 @@ def test_stub_signup(monkeypatch):
     importlib.reload(signup_adapter)
     signup_adapter.reset_stub()
 
-    ok, _ = signup_adapter.register_user("alice", "a@example.com", "password123")
-    assert ok
-    ok, msg = signup_adapter.register_user("alice", "b@example.com", "password123")
-    assert not ok and "exists" in msg.lower()
-    ok, msg = signup_adapter.register_user("bob", "a@example.com", "password123")
-    assert not ok and "exists" in msg.lower()
+    resp = signup_adapter.register_user("alice", "a@example.com", "password123")
+    assert resp["ok"]
+    resp = signup_adapter.register_user("alice", "b@example.com", "password123")
+    assert not resp["ok"] and "exists" in resp["error"].lower()
+    resp = signup_adapter.register_user("bob", "a@example.com", "password123")
+    assert not resp["ok"] and "exists" in resp["error"].lower()
 
 
 def test_backend_signup(tmp_path, monkeypatch):
@@ -39,9 +39,9 @@ def test_backend_signup(tmp_path, monkeypatch):
     superNova_2177.Base.metadata.create_all(bind=superNova_2177.engine)
     importlib.reload(signup_adapter)
 
-    ok, _ = signup_adapter.register_user("carol", "c@example.com", "password123")
-    assert ok
-    ok, msg = signup_adapter.register_user("carol", "d@example.com", "password123")
-    assert not ok and "exists" in msg.lower()
-    ok, msg = signup_adapter.register_user("dave", "c@example.com", "password123")
-    assert not ok and "exists" in msg.lower()
+    resp = signup_adapter.register_user("carol", "c@example.com", "password123")
+    assert resp["ok"]
+    resp = signup_adapter.register_user("carol", "d@example.com", "password123")
+    assert not resp["ok"] and "exists" in resp["error"].lower()
+    resp = signup_adapter.register_user("dave", "c@example.com", "password123")
+    assert not resp["ok"] and "exists" in resp["error"].lower()

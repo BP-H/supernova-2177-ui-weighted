@@ -14,8 +14,8 @@ def main() -> None:
         "Customize your experience here. (Placeholder – more options coming soon!)"
     )
 
-    # Backend toggle stored in session state for adapter access
-    st.toggle("Enable backend", key="use_backend")
+    # Backend toggle stored in local variable
+    use_backend = st.toggle("Enable backend", key="settings_use_backend")
 
     with st.form("profile_form"):
         bio = st.text_area("Bio", max_chars=280)
@@ -24,14 +24,17 @@ def main() -> None:
 
     if submitted:
         prefs = [p.strip() for p in prefs_raw.split(",") if p.strip()]
-        result = update_profile_adapter(bio, prefs)
-        status = result.get("status")
-        if status == "ok":
-            st.success("Profile updated successfully")
-        elif status == "stubbed":
-            st.info("Profile updated (stub)")
+        result = update_profile_adapter(bio, prefs, use_backend=use_backend)
+        if not result.get("available", True):
+            st.warning("Profile service unavailable.")
         else:
-            st.error(f"Update failed: {result.get('error', 'unknown error')}")
+            status = result.get("status")
+            if status == "ok":
+                st.success("Profile updated successfully")
+            elif status == "stubbed":
+                st.info("Profile updated (stub)")
+            else:
+                st.error(f"Update failed: {result.get('error', 'unknown error')}")
 
 
 if __name__ == "__main__":

@@ -9,6 +9,14 @@ from frontend.theme import apply_theme
 from ai_video_chat import create_session
 from video_chat_router import ConnectionManager
 from streamlit_helpers import safe_container, header, theme_toggle, inject_global_styles
+from .widget_keys import page_key, VIDEO_CHAT_PAGE
+
+# Dedicated widget keys for this page. The helper appends a shared `_v2`
+# suffix so new pages don't collide with legacy keys.
+VIDEO_CHAT_START_KEY = page_key(VIDEO_CHAT_PAGE, "start")
+VIDEO_CHAT_END_KEY = page_key(VIDEO_CHAT_PAGE, "end")
+VIDEO_CHAT_INPUT_KEY = page_key(VIDEO_CHAT_PAGE, "input")
+VIDEO_CHAT_SEND_KEY = page_key(VIDEO_CHAT_PAGE, "send")
 
 # Initialize theme & global styles once on import
 apply_theme("light")
@@ -43,27 +51,27 @@ def main(main_container=None) -> None:
         messages = st.session_state.setdefault("video_chat_messages", [])
 
         if session is None:
-            if st.button("Start Session", key="video_chat_start"):
+            if st.button("Start Session", key=VIDEO_CHAT_START_KEY):
                 session = create_session(["local-user"])
                 _run_async(session.start())
                 st.session_state["video_chat_session"] = session
                 st.success("Session started")
         else:
             st.write(f"Session ID: {session.session_id}")
-            if st.button("End Session", key="video_chat_end"):
+            if st.button("End Session", key=VIDEO_CHAT_END_KEY):
                 _run_async(session.end())
                 st.session_state["video_chat_session"] = None
                 st.session_state["video_chat_messages"] = []
                 st.success("Session ended")
                 return
 
-            msg = st.text_input("Message", key="video_chat_input")
-            if st.button("Send", key="video_chat_send"):
+            msg = st.text_input("Message", key=VIDEO_CHAT_INPUT_KEY)
+            if st.button("Send", key=VIDEO_CHAT_SEND_KEY):
                 if msg:
                     payload = {"type": "chat", "text": msg, "lang": "en"}
                     _run_async(manager.broadcast(payload, sender=None))
                     messages.append(f"You: {msg}")
-                    st.session_state["video_chat_input"] = ""
+                    st.session_state[VIDEO_CHAT_INPUT_KEY] = ""
 
             st.markdown("**Chat Log**")
             for line in messages:
