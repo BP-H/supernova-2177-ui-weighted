@@ -482,6 +482,10 @@ python superNova_2177.py
 The Streamlit page expects this backend by default. If you run it elsewhere, set
 the `BACKEND_URL` environment variable so the UI can find the API.
 
+Set `USE_REAL_BACKEND=1` to route harmonizer services to the live API. When
+unset, in-memory stubs are used for local demos. `BACKEND_URL` specifies the
+server address (default `http://localhost:8000`).
+
 ### Troubleshooting the UI
 
 - **Missing dependencies**: If the interface fails with `ModuleNotFoundError`, run
