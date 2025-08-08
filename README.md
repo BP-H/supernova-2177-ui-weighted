@@ -83,35 +83,37 @@ python demos/quick_weighted_demo.py
 The UI listens on [http://localhost:8888](http://localhost:8888) by default.
 Append `?healthz=1` to the URL and you should see `ok` when the server is running.
 
+## ▶️ Run the UI
+
+```bash
+python -m pip install -r requirements.txt
+streamlit run ui.py
+````
+
 ## 🗳️ How voting works
 
-STRICTLY A SOCIAL MEDIA PLATFORM
-Intellectual Property & Artistic Inspiration
-Legal & Ethical Safeguards
+> STRICTLY A SOCIAL MEDIA PLATFORM
+> Intellectual Property & Artistic Inspiration • Legal & Ethical Safeguards
 
-Weighted voting divides influence equally among the species that participate. If
-humans, companies, and AIs all vote on a proposal, each species controls one
-third of the total weight. Within a species, weight is split evenly among its
-voters. Decisions require a super‑majority of the weighted "yes" votes:
+Weighted voting divides influence equally among the species that participate. If humans, companies, and AIs all vote on a proposal, each species controls one third of the total weight. Within a species, weight is split evenly among its voters. Decisions require a super-majority of the weighted “yes” votes:
 
-- **Standard matters:** accepted at **60 %** or more yes votes.
-- **Important matters:** accepted at **90 %** or more yes votes.
+* **Standard matters:** accepted at **60%** or more yes votes.
+* **Important matters:** accepted at **90%** or more yes votes.
 
-## ⏱️ One‑minute demo
-
-To see the weighted engine in action with sample data:
+## ⚡ Quick demo
 
 1. Launch the interface:
+
    ```bash
    streamlit run ui.py
    ```
-2. In the sidebar, open **Proposals (Weighted)**.
-3. Vote on a proposal as a human, company, or AI and watch the live weighted
-   tally update.
-4. Toggle between standard and important levels to observe the 60 % vs. 90 %
-   acceptance thresholds.
+2. Open **Proposals (Weighted)** in the sidebar.
+3. Vote on a proposal as a **human**, **company**, or **AI** and watch the live weighted tally update.
+4. Open **Decisions** to compute whether it passes, and toggle between **standard** and **important** to see the 60% vs 90% thresholds.
 
 For integration guidance, see the [Integration Plan](docs/INTEGRATION_PLAN.md).
+
+```
 
 ## 🔧 Local Development
 
