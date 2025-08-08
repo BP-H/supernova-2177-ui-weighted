@@ -1,31 +1,100 @@
 # Integration Plan for Weighted Voting Adapter
 
-This document outlines how the weighted voting core is consumed by `services/voting_adapter.py` and exposes a consistent API for the rest of the system.
+> NOTE: STRICTLY A SOCIAL MEDIA PLATFORM  
+> Intellectual Property & Artistic Inspiration • Legal & Ethical Safeguards
 
-## Public Functions
+This document explains how the weighted voting **core** integrates with the UI and
+backend via `services/voting_adapter.py`. It also lists goals, wiring steps, and
+the public adapter API.
+
+---
+
+## Goals
+
+- Enable smooth adoption of the species-weighted voting engine.
+- Provide guidance for developers integrating the UI with backend services.
+- Keep the UI and adapter stable while allowing backend swaps (fake or real).
+
+---
+
+## Decision Model (quick reference)
+
+- **Species**: `human`, `company`, `ai`.
+- **Weighting**: influence is divided **equally across participating species**,
+  then **evenly within each species** among its voters.
+- **Thresholds**:
+  - Standard matters: **60%** yes (weighted).
+  - Important matters: **90%** yes (weighted).
+
+Engine reference: `voting_engine.py`  
+UI reference pages: `pages/proposals_weighted.py`, `pages/decisions.py`  
+Adapter: `services/voting_adapter.py` (this plan’s focus)
+
+---
+
+## Public Adapter API (used by the UI)
 
 ### `register_vote(proposal_id, voter, choice, species)`
-Records a single vote with an associated species. The adapter normalizes the species label and forwards the vote to the core engine. It should return a simple acknowledgment so the UI can refresh tallies.
+Record a vote (e.g., `choice` in `{ "yes", "no" }`) with the caller’s species.
+The adapter normalizes the species label and forwards the vote to the core.
+Returns an acknowledgment so the UI can refresh tallies.
 
 ### `tally_votes(proposal_id)`
-Returns weighted totals for the specified proposal, including per-species weighting information. The adapter calls this after each vote so the UI can display up, down and total weight values.
+Return weighted totals and per-species breakdown for the proposal so the UI can
+render up/down/total weight bars.
 
 ### `get_threshold(level)`
-Fetches the required approval ratio for a given decision level (e.g. `standard` or `important`). `services/voting_adapter.py` uses this when presenting decision options and before finalizing a proposal.
+Return the approval ratio required for the decision level (e.g., `"standard"` or
+`"important"`). The UI reads this to show the target % before deciding.
 
 ### `decide(proposal_id, level)`
-Combines the tallied weights with the threshold to produce a final decision object containing status and supporting metrics. The adapter exposes this to higher layers that trigger decisions.
+Combine current tallies with the level’s threshold and return a final decision
+object (e.g., `{ status: "accepted"|"rejected", threshold: 0.6|0.9, details: ... }`).
 
-## Interaction Flow in `services/voting_adapter.py`
-1. User selects a species in the UI, which is stored in Streamlit session state.
-2. When a vote is cast, `register_vote` is invoked with the stored species.
-3. The adapter immediately calls `tally_votes` to update the displayed totals.
-4. If a decision is requested, `get_threshold` provides the required ratio and `decide` finalizes the outcome.
+---
+
+## Interaction Flow
+
+1. **Species selection**  
+   The user picks a species in the sidebar; it is stored in `st.session_state`.
+2. **Vote**  
+   The UI calls `register_vote(...)` with the stored species.
+3. **Immediate feedback**  
+   The UI calls `tally_votes(...)` to update the live weighted totals.
+4. **Decision**  
+   On request, the UI calls `get_threshold(level)` and then `decide(...)` to show
+   an accept/reject banner with the threshold used.
+
+---
+
+## Wiring Steps
+
+1. **Prerequisites**
+   - Ensure the Streamlit UI runs (`streamlit run ui.py`).
+   - Ensure `voting_engine.py` is present for species-based weighting.
+
+2. **API Wiring**
+   - Use `external_services/fake_api_weighted.py` as a reference.
+   - Real backends should expose compatible endpoints/handlers for:
+     - `vote`, `tally`, `threshold(level)`, and `decide`.
+
+3. **UI Hooks**
+   - See `pages/proposals_weighted.py` for rendering tallies and vote actions.
+   - `pages/decisions.py` demonstrates applying thresholds and surfacing the result.
+
+4. **Testing**
+   - Try the one-minute demo in the README (Proposals Weighted page).
+   - Run your project’s tests (e.g., `make test`) to catch integration regressions.
+
+---
 
 ## Rationale
 
-### Species Weighting
-The engine divides influence equally among participating species and then per voter within each species, ensuring no single species dominates if others are active. This is implemented by computing equal species shares and per-voter weights before summing the up and down totals.
+### Species weighting
+To prevent dominance when multiple species participate, the engine first splits
+influence equally among species that actually voted, then distributes each
+species’ share across its voters.
 
-### Session State Choice
-A Streamlit sidebar select box stores the voter's species in `st.session_state`. Subsequent voting actions read this value, allowing consistent weighting for the user's entire session without additional inputs.
+### Session state choice
+Keeping the species choice in `st.session_state` avoids repeated prompts and
+ensures consistent weighting across actions in the same session.
