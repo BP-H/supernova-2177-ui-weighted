@@ -80,6 +80,27 @@ supernova-federate vote <fork_id> --voter Bob --vote yes
 The UI listens on [http://localhost:8888](http://localhost:8888) by default.
 Append `?healthz=1` to the URL and you should see `ok` when the server is running.
 
+## ▶️ Run the UI
+
+```bash
+python -m pip install -r requirements.txt
+streamlit run ui.py
+```
+
+## 🗳️ How voting works
+
+Voting is open to three species—human, company, and AI. Each species receives an equal share of the overall voting weight. If all three participate, each controls one third; if fewer participate, the share is split equally among those present. Decisions come in two tiers:
+
+- **Standard**: passes with at least 60% of the weighted vote.
+- **Important**: passes with at least 90% of the weighted vote.
+
+## ⚡ Quick demo
+
+1. Run the UI using the commands above.
+2. Create a proposal in the interface.
+3. Switch species in the sidebar and cast votes as each species.
+4. Open the Decisions page to compute whether it passes — all in under a minute.
+
 ## 🔧 Local Development
 
 To launch the Streamlit UI:
