@@ -1,55 +1,33 @@
-# STRICTLY A SOCIAL MEDIA PLATFORM
-# Intellectual Property & Artistic Inspiration
-# Legal & Ethical Safeguards
-streamlit
-streamlit-shadcn-ui
-pytest
-pytest-asyncio>=0.23
-sqlalchemy>=2.0
-networkx
-python-dateutil
+# File: /requirements.txt
+# This file contains only the necessary libraries for the FastAPI backend.
+
+# Core API Framework
 fastapi
-python-multipart
 uvicorn
 pydantic
 pydantic-settings
-redis
+
+# Database
+sqlalchemy
+asyncpg
+
+# Security & Authentication
 passlib[bcrypt]
 python-jose[cryptography]
-requests
-structlog
-prometheus-client
-python-dotenv
-types-python-dateutil
-types-requests
-types-networkx
+email-validator
+
+# Scientific & Data Libraries
 numpy
+networkx
 sympy
 scipy
-tqdm
-statsmodels
-pulp
-matplotlib
-python-snappy
-qutip
 pandas
-pygame
-mido
-midiutil
-streamlit>=1.28
-qrcode
-asyncpg
-email-validator
+statsmodels
+qutip
+
+# Utilities
+python-dotenv
+structlog
+redis
+requests
 httpx==0.27.0
-streamlit-ace
-kaleido
-websockets>=15.0
-plotly
-pyvis
-streamlit-option-menu
-streamlit-aggrid>=1.1.7
-streamlit-autorefresh
-gtts
-streamlit-javascript
-nicegui
-torch  # optional ML features
