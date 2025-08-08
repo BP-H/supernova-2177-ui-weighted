@@ -1,27 +1,27 @@
 "use client";
-
-import Link from "next/link";
-
-const Tile = ({ href, icon, label }) => (
-  <Link href={href} className="btn h-12">
-    <span>{icon}</span>
-    <span className="font-medium">{label}</span>
-  </Link>
-);
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function TopBar() {
+  const r = useRouter();
+  const [q, setQ] = useState("");
+
   return (
-    <div className="sticky top-0 z-20 bg-[var(--panel-2)]/80 backdrop-blur border-b border-[var(--stroke)]">
-      <div className="flex items-center gap-3 px-4 py-3">
-        <Tile href="/voting" icon="🗳️" label="Voting" />
-        <Tile href="/proposals" icon="📄" label="Proposals" />
-        <Tile href="/decisions" icon="✅" label="Decisions" />
-        <Tile href="/execution" icon="⚙️" label="Execution" />
-        <div className="ml-auto w-64">
-          <input
-            placeholder="🔍 Search…"
-            className="w-full h-10 px-3 rounded-md border border-[var(--stroke)] bg-[#161a28] outline-none"
-          />
+    <div className="sn-top">
+      <div style={{ fontWeight: 800 }}>superNova_2177</div>
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <input
+          placeholder="🔍 Search…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e)=> e.key==='Enter' && r.push(`/search?q=${encodeURIComponent(q)}`)}
+          style={{ padding: 10, width: 320, borderRadius: 10, background: "#161a28", border: "1px solid var(--stroke)", color: "var(--text)" }}
+        />
+        <div className="sn-quick">
+          <button onClick={() => r.push("/voting")}>🗳️ Voting</button>
+          <button onClick={() => r.push("/proposals")}>📄 Proposals</button>
+          <button onClick={() => r.push("/decisions")}>✅ Decisions</button>
+          <button onClick={() => r.push("/execution")}>⚙️ Execution</button>
         </div>
       </div>
     </div>
