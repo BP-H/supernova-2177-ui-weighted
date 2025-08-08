@@ -14,8 +14,10 @@ with st.sidebar:
     spec = st.selectbox(
         "I am a…",
         ("human", "company", "ai"),
-        index={"human": 0, "company": 1, "ai": 2}.get(st.session_state.get("species", "human"), 0),
-        key="species"  # <— single, canonical key
+        index={"human": 0, "company": 1, "ai": 2}.get(
+            st.session_state.get("species", "human"), 0
+        ),
+        key="species",  # <— single, canonical key
     )
     # (Optional) mirror to a simpler name if you read it elsewhere
     st.session_state["user_species"] = spec
@@ -46,6 +48,7 @@ PRIMARY_PAGES: Dict[str, str] = {
     "Proposals": "pages.proposals",
     "Decisions": "pages.decisions",
     "Execution": "pages.execution",
+    "Harmonizer": "pages.harmonizer",
     # Example to enable the 3D page:
     # "Enter Metaverse": "pages.enter_metaverse",
 }
@@ -68,11 +71,15 @@ def _apply_backend_env(use_real: bool, url: str) -> None:
 
 
 def _using_real_backend() -> bool:
-    return st.session_state.get("use_real_backend", _bool_env("USE_REAL_BACKEND", False))
+    return st.session_state.get(
+        "use_real_backend", _bool_env("USE_REAL_BACKEND", False)
+    )
 
 
 def _current_backend_url() -> str:
-    return st.session_state.get("backend_url", os.environ.get("BACKEND_URL", "http://127.0.0.1:8000"))
+    return st.session_state.get(
+        "backend_url", os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
+    )
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -140,8 +147,12 @@ def render_page(label: str) -> None:
 def _init_state() -> None:
     st.session_state.setdefault("theme", "dark")
     st.session_state.setdefault("current_page", "Feed")
-    st.session_state.setdefault("use_real_backend", _bool_env("USE_REAL_BACKEND", False))
-    st.session_state.setdefault("backend_url", os.environ.get("BACKEND_URL", "http://127.0.0.1:8000"))
+    st.session_state.setdefault(
+        "use_real_backend", _bool_env("USE_REAL_BACKEND", False)
+    )
+    st.session_state.setdefault(
+        "backend_url", os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
+    )
     st.session_state.setdefault("__pages_map__", _discover_pages())
     st.session_state.setdefault("search_query", "")
     st.session_state.setdefault("decision_kind", "standard")
@@ -153,11 +164,16 @@ def _inject_css() -> None:
 <style>
 /* Base */
 .stApp { background-color:#0a0a0a !important; color:#fff !important; }
-.main .block-container { padding-top:18px !important; padding-bottom:96px !important; }
+  .main .block-container {
+    padding-top:18px !important;
+    padding-bottom:96px !important;
+  }
 
 /* Sidebar */
 [data-testid="stSidebar"]{
-  background:#18181b !important; border-right:1px solid #222 !important; color:#fff !important;
+  background:#18181b !important;
+  border-right:1px solid #222 !important;
+  color:#fff !important;
 }
 [data-testid="stSidebar"] .stButton>button{
   background:#1f1f23 !important; color:#fff !important; border:0 !important;
@@ -175,8 +191,14 @@ div[data-testid="column"] .stButton>button{
 div[data-testid="column"] .stButton>button:hover{ border-color:#ff1493 !important; }
 
 /* Inputs */
-[data-testid="stTextInput"]>div { background:#242428 !important; border-radius:10px !important; }
-[data-testid="stTextInput"] input { background:transparent !important; color:#fff !important; }
+  [data-testid="stTextInput"]>div {
+    background:#242428 !important;
+    border-radius:10px !important;
+  }
+  [data-testid="stTextInput"] input {
+    background:transparent !important;
+    color:#fff !important;
+  }
 </style>
 """,
         unsafe_allow_html=True,
@@ -200,7 +222,12 @@ def _nav_tile(icon: str, label: str) -> None:
 
 def _top_shortcuts() -> None:
     cols = st.columns([1, 1, 1, 1, 6])
-    tiles = [("🗳️", "Voting"), ("📄", "Proposals"), ("✅", "Decisions"), ("⚙️", "Execution")]
+    tiles = [
+        ("🗳️", "Voting"),
+        ("📄", "Proposals"),
+        ("✅", "Decisions"),
+        ("⚙️", "Execution"),
+    ]
     for (icon, label), col in zip(tiles, cols):
         with col:
             _nav_tile(icon, label)
@@ -226,7 +253,9 @@ def _sidebar_profile() -> None:
 def _sidebar_nav_buttons() -> None:
     def _btn(label: str, icon: str = "", sect: str = "nav"):
         key = f"{sect}_{label.lower().replace(' ', '_')}"
-        if st.button((icon + " " if icon else "") + label, key=key, use_container_width=True):
+        if st.button(
+            (icon + " " if icon else "") + label, key=key, use_container_width=True
+        ):
             _goto(label)
 
     # Workspaces
@@ -244,28 +273,40 @@ def _sidebar_nav_buttons() -> None:
     _btn("Proposals", "📑")
     _btn("Decisions", "✅")
     _btn("Execution", "⚙️")
+    _btn("Harmonizer", "🪄")
 
     st.divider()
     st.subheader("Premium features")
     _btn("Music", "🎶", "premium")
     _btn("Agents", "🚀", "premium")
     _btn("Enter Metaverse", "🌌", "premium")
-    st.caption("Mathematically sucked into a superNova_2177 void – stay tuned for 3D immersion")
+    st.caption(
+        "Mathematically sucked into a superNova_2177 void – stay tuned for 3D immersion"
+    )
     st.divider()
 
     _btn("Settings", "⚙️", "system")
 
 
 def _backend_controls() -> None:
-    use_real = st.toggle("Use real backend", value=_using_real_backend(), key="toggle_real_backend")
-    url = st.text_input("Backend URL", value=_current_backend_url(), key="backend_url_input")
+    use_real = st.toggle(
+        "Use real backend", value=_using_real_backend(), key="toggle_real_backend"
+    )
+    url = st.text_input(
+        "Backend URL", value=_current_backend_url(), key="backend_url_input"
+    )
     st.session_state["use_real_backend"] = use_real
     st.session_state["backend_url"] = url
     _apply_backend_env(use_real, url)
 
 
 def _search_box() -> None:
-    st.text_input("Search posts, people…", key="search_query", label_visibility="collapsed", placeholder="🔍 Search…")
+    st.text_input(
+        "Search posts, people…",
+        key="search_query",
+        label_visibility="collapsed",
+        placeholder="🔍 Search…",
+    )
 
 
 def _goto(page_label: str) -> None:
@@ -284,7 +325,9 @@ def _goto(page_label: str) -> None:
 def main() -> None:
     # IMPORTANT: run THIS script (not Streamlit's built-in multipage runner), so
     # our router is used and the default “radio-list” nav never appears.
-    st.set_page_config(page_title=APP_TITLE, layout="wide", initial_sidebar_state="expanded")
+    st.set_page_config(
+        page_title=APP_TITLE, layout="wide", initial_sidebar_state="expanded"
+    )
 
     _inject_css()
     _init_state()
