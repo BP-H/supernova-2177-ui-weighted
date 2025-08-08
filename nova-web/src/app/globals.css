@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --bg:#0b0b0e; --card:#111218; --muted:#9aa0a6; --text:#e9ecf1; --ring:rgba(122,162,255,.35);
+}
+
+html,body{ background:var(--bg); color:var(--text); }
+.container { @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl; }
+.card { @apply rounded-2xl border border-white/5 bg-[var(--card)] shadow-xl; }
+.soft { box-shadow: 0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05); }
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm;
+}
+.btn:hover { @apply bg-black/50; }
