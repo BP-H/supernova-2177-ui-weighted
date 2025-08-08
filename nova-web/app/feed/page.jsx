@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Universe3D from '../components/Universe3D';
+import Universe3D from '@/src/components/Universe3D';
 
 export default function Home() {
   return (
