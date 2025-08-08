@@ -8,7 +8,7 @@ from typing import Dict, List, Literal, Tuple, Any
 
 try:
     # Requires voting_engine.py (dataclass Vote + tally/decide)
-    from voting_engine import Vote, tally_weighted, decide_weighted
+from voting_engine import Vote, tally_weighted, decide_weighted, THRESHOLDS
 except Exception as e:  # graceful fallback so imports never crash the app
     Vote = None  # type: ignore
     tally_weighted = decide_weighted = None  # type: ignore
@@ -87,3 +87,8 @@ def decide_weighted_api(proposal_id: int, level: str = "standard") -> Dict[str, 
     votes = [Vote(**v) for v in _WEIGHTED_VOTES if v["proposal_id"] == pid]
     lvl = level if level in {"standard", "important"} else "standard"
     return decide_weighted(votes, pid, lvl)  # type: ignore
+
+def get_threshold(level: str) -> float:
+    """Return the decision threshold for the given level."""
+    lvl = level if level in {"standard", "important"} else "standard"
+    return THRESHOLDS[lvl]

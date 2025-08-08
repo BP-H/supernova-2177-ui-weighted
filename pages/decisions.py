@@ -66,21 +66,27 @@ def _standard_decisions_block() -> None:
 # ---------------- weighted (superNova_2177) -------------
 # Try both casings so we don't break either file name.
 try:
-    from superNova_2177 import tally_proposal_weighted, decide_weighted_api
+    from superNova_2177 import tally_proposal_weighted, decide_weighted_api, get_threshold
 except Exception:
     try:
-        from supernova_2177 import tally_proposal_weighted, decide_weighted_api  # type: ignore
+        from supernova_2177 import tally_proposal_weighted, decide_weighted_api, get_threshold  # type: ignore
     except Exception:
         # very safe stubs so the page keeps working if the module is missing
         def tally_proposal_weighted(pid: int):
             return {"up": 0.0, "down": 0.0, "total": 0.0}
         def decide_weighted_api(pid: int, level: str):
             return {"status": "rejected", "threshold": 0.6}
+        def get_threshold(level: str) -> float:
+            return 0.9 if level == "important" else 0.6
 
 
 def _weighted_decisions_block() -> None:
     st.subheader("Weighted decisions (Humans / Companies / AI)")
-    st.caption("Important=90% threshold · Standard=60% threshold (weighted by species pool)")
+    kind = st.session_state.get("decision_kind", "standard")
+    thr = get_threshold(kind)
+    st.caption(
+        f"{kind.title()} decisions require {int(thr * 100)}% threshold (weighted by species pool)"
+    )
 
     proposals = _get("/proposals") if _use_backend() else list_proposals()
     for p in proposals:
@@ -91,19 +97,16 @@ def _weighted_decisions_block() -> None:
             up = float(t.get("up", 0.0))
             down = float(t.get("down", 0.0))
             pct = (up / total * 100.0) if total else 0.0
-            st.caption(f"Weighted tally: {up:.3f} ↑ / {down:.3f} ↓ — total {total:.3f}  ({pct:.1f}% yes)")
-
-            level = st.selectbox(
-                "Decision level",
-                ["standard", "important"],
-                index=0,
-                key=f"weighted_level_{pid}",
+            st.caption(
+                f"Weighted tally: {up:.3f} ↑ / {down:.3f} ↓ — total {total:.3f}  ({pct:.1f}% yes)"
             )
+
             if st.button(f"Decide (weighted) #{pid}", key=f"wdec_{pid}"):
-                res = decide_weighted_api(pid, level)
+                res = decide_weighted_api(pid, kind)
                 status = str(res.get("status", "unknown")).upper()
-                thr = float(res.get("threshold", 0.6))
-                st.success(f"{status} at {int(thr * 100)}% threshold")
+                st.success(
+                    f"{status} ({kind}) at {int(res.get('threshold', thr) * 100)}% threshold"
+                )
 
 
 def main() -> None:

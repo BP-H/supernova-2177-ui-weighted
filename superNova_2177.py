@@ -4150,6 +4150,11 @@ Species = Literal["human","company","ai"]
 DecisionLevel = Literal["standard","important"]
 THRESHOLDS: Dict[DecisionLevel, float] = {"standard": 0.60, "important": 0.90}
 
+def get_threshold(level: str) -> float:
+    """Return the decision threshold for the given level."""
+    lvl = "important" if level == "important" else "standard"
+    return THRESHOLDS[lvl]
+
 @dataclass
 class Vote:
     proposal_id: int
