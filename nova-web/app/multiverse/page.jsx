@@ -1,12 +1,11 @@
-
-'use client';
+'use client'; // This makes it fun and interactive!
 
 import Link from 'next/link';
 import { useEffect } from 'react';
 
 export default function Multiverse() {
   useEffect(() => {
-    // Create particles on mouse move
+    // Fun particles on mouse move (if you want this – skip if not needed)
     const handleMouseMove = (e) => {
       if (Math.random() > 0.95) {
         createParticle(e.pageX, e.pageY);
@@ -16,73 +15,41 @@ export default function Multiverse() {
     const createParticle = (x, y) => {
       const particle = document.createElement('div');
       particle.className = 'particle';
-      particle.style.left = x + 'px';
-      particle.style.top = y + 'px';
-      
-      const size = Math.random() * 10 + 5;
-      particle.style.width = size + 'px';
-      particle.style.height = size + 'px';
-      
-      const colors = ['#ff006e', '#8338ec', '#3a86ff', '#06ffa5', '#ffbe0b'];
-      particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-      particle.style.boxShadow = `0 0 ${size * 2}px ${particle.style.background}`;
-      
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+      particle.style.background = `radial-gradient(circle, rgba(138,56,236,0.8) 0%, transparent 70%)`;
+      particle.style.width = `${Math.random() * 20 + 10}px`;
+      particle.style.height = particle.style.width;
       document.body.appendChild(particle);
-      
-      setTimeout(() => {
-        particle.classList.add('active');
-      }, 10);
-      
-      setTimeout(() => {
-        particle.remove();
-      }, 3000);
+      particle.classList.add('active');
+      setTimeout(() => particle.remove(), 3000);
     };
-
-    // Add glitch effect to cards
-    const glitchInterval = setInterval(() => {
-      const cards = document.querySelectorAll('.feed-card');
-      if (cards.length > 0) {
-        const randomCard = cards[Math.floor(Math.random() * cards.length)];
-        randomCard.style.transform = 'translateX(' + (Math.random() * 4 - 2) + 'px)';
-        setTimeout(() => {
-          randomCard.style.transform = '';
-        }, 100);
-      }
-    }, 3000);
 
     document.addEventListener('mousemove', handleMouseMove);
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      clearInterval(glitchInterval);
-    };
+    return () => document.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   return (
     <>
       <style jsx global>{`
-        .multiverse-container {
-          min-height: 100vh;
-          background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
-          position: relative;
-          overflow: hidden;
+        body {
+          margin: 0;
+          background: black;
           color: white;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+          overflow-x: hidden;
+        }
+
+        .multiverse-container {
+          position: relative;
+          min-height: 100vh;
+          overflow: hidden;
         }
 
         .stars {
-          position: fixed;
+          position: absolute;
           top: 0;
           left: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          background: transparent;
-        }
-
-        .stars::before, .stars::after {
-          content: '';
-          position: absolute;
           width: 100%;
           height: 100%;
           background-image: 
@@ -98,6 +65,12 @@ export default function Multiverse() {
         }
 
         .stars::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
           background-position: 100px 100px;
           animation-duration: 30s;
           animation-direction: reverse;
@@ -232,18 +205,9 @@ export default function Multiverse() {
         }
 
         @keyframes float-up {
-          0% {
-            opacity: 0;
-            transform: translateY(0) scale(0);
-          }
-          20% {
-            opacity: 1;
-            transform: translateY(-20px) scale(1);
-          }
-          100% {
-            opacity: 0;
-            transform: translateY(-200px) scale(0.5);
-          }
+          0% { opacity: 0; transform: translateY(0) scale(0); }
+          20% { opacity: 1; transform: translateY(-20px) scale(1); }
+          100% { opacity: 0; transform: translateY(-200px) scale(0.5); }
         }
 
         .floating-orb {
