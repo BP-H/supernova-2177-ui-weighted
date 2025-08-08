@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "nova-web/next.config.js",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "nova-api/main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/nova-api/main.py"
+    }
+  ]
+}
