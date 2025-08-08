@@ -4146,6 +4146,8 @@ if __name__ == "__main__":
 from dataclasses import dataclass
 from typing import Literal, Dict, List
 
+from services.weights import SPECIES_WEIGHTS
+
 Species = Literal["human","company","ai"]
 DecisionLevel = Literal["standard","important"]
 THRESHOLDS: Dict[DecisionLevel, float] = {"standard": 0.60, "important": 0.90}
@@ -4173,9 +4175,13 @@ def vote_weighted(proposal_id: int, voter: str, choice: str, species: str="human
 
 def _species_shares(active: List[Species]) -> Dict[Species, float]:
     present = sorted(set(active))
-    if not present: return {}
-    share = 1.0 / len(present)  # ⅓ each if all present; renormalized if not
-    return {s: share for s in present}
+    if not present:
+        return {}
+    weights = {s: SPECIES_WEIGHTS.get(s, 0.0) for s in present}
+    total = sum(weights.values())
+    if total <= 0:
+        return {s: 0.0 for s in present}
+    return {s: weights[s] / total for s in present}
 
 def tally_proposal_weighted(proposal_id: int):
     V = [v for v in _WEIGHTED_VOTES if v.proposal_id == int(proposal_id)]
