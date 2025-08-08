@@ -1,37 +1,14 @@
-"use client";
-
-import { useState } from "react";
-
-export default function PostCard({ post }) {
-  const [likes, setLikes] = useState(post.likes || 0);
-  const [reacts, setReacts] = useState(post.reacts || 0);
-  const [reposts, setReposts] = useState(post.reposts || 0);
-
+export default function PostCard({ title="Ann Guzman", subtitle="Public relations officer at Silva Group • 1st", body="Prototype content — symbolic only." }) {
   return (
-    <article className="card p-4 mb-4">
-      <div className="flex items-center gap-3 mb-2">
-        <img src={post.avatar} alt="" className="w-10 h-10 rounded-lg" />
-        <div>
-          <div className="font-semibold">{post.author}</div>
-          <div className="text-sm text-[var(--muted)]">{post.title}</div>
-        </div>
-        {post.promoted && <span className="badge ml-auto">Promoted</span>}
-      </div>
-
-      <div className="mb-3">{post.text}</div>
-      {post.image && (
-        <img src={post.image} alt="" className="rounded-xl border border-[var(--stroke)] mb-3" />
-      )}
-
-      <div className="flex flex-wrap gap-2">
-        <button className="btn" onClick={() => setLikes(l => l + 1)}>👍 Like {likes ? `· ${likes}` : ""}</button>
-        <button className="btn">💬 Comment</button>
-        <button className="btn" onClick={() => setReposts(r => r + 1)}>🔁 Repost {reposts ? `· ${reposts}` : ""}</button>
-        <button className="btn" onClick={() => setReacts(r => r + 1)}>🎉 React {reacts ? `· ${reacts}` : ""}</button>
-        <button className="btn">🎛️ Remix</button>
-        <button className="btn">💝 Tip</button>
-        <button className="btn">🏆 Reward</button>
-        <button className="btn">🧭 Share</button>
+    <article className="sn-post">
+      <div style={{ fontWeight:700 }}>{title}</div>
+      <div style={{ opacity:.7, fontSize:13, marginBottom:8 }}>{subtitle}</div>
+      <p style={{ margin:"6px 0 0" }}>{body}</p>
+      <div className="sn-actions">
+        <button>🔥 Like</button>
+        <button>💬 Comment</button>
+        <button>🔗 Share</button>
+        <button style={{ outline:"2px solid rgba(255,255,255,.15)" }}>🧪 React</button>
       </div>
     </article>
   );
