@@ -1,5 +1,4 @@
 'use client'
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Home, MessageSquare, Mail, User, FileText, CheckCircle, Settings, Music, Rocket, Sparkles, X, Menu, Bell, Plus, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Globe, Code, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
