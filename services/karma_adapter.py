@@ -1,83 +1,166 @@
-"""Karma service adapter with optional backend integration.
+"""Karma adapter (unified + conflict-free)
 
-This module attempts to import real implementations from ``superNova_2177``. If the
-import fails, it falls back to simple in-memory stubs. All exposed functions
-return ``{"available": False}`` when an error occurs.
+Exposes a stable UI-friendly API with graceful fallbacks:
+
+  - get_profile_karma(user) -> {"available": bool, "user": str, "karma": float, "error"?: str}
+  - adjust_karma(user, delta) -> {"available": bool, "user": str, "karma": float, "error"?: str}
+  - get_karma_leaderboard(limit=10) -> {"available": bool, "leaderboard": list[tuple[str, float]], "error"?: str}
+
+Resolution order:
+  1) In-process functions from superNova_2177 if present.
+  2) HTTP endpoints when USE_REAL_BACKEND is set.
+  3) In-memory stubs (local/demo).
 """
-
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
+import os
+from typing import Any, Dict, List, Tuple
 
-try:
-    from superNova_2177 import (
-        get_profile_karma as _get_profile_karma,
-        adjust_karma as _adjust_karma,
-        get_karma_leaderboard as _get_karma_leaderboard,
-    )
+import requests  # ensure in requirements
 
-    _STUB = False
-except Exception:  # pragma: no cover - import fallback
-    _STUB = True
-    _karma_store: Dict[str, int] = {}
+# Env toggles
+USE_REAL_BACKEND = os.getenv("USE_REAL_BACKEND", "0").lower() in {"1", "true", "yes"}
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
-    def _get_profile_karma(user: str) -> dict:
-        """Stubbed profile lookup returning stored karma."""
-        return {"user": user, "karma": _karma_store.get(user, 0), "available": True}
+# Try to import the backend module if we're in the same process
+try:  # pragma: no cover - optional import
+    import superNova_2177 as sn_mod  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover
+    sn_mod = None  # type: ignore[assignment]
 
-    def _adjust_karma(user: str, delta: int) -> dict:
-        """Stubbed karma adjustment stored in-memory."""
-        _karma_store[user] = _karma_store.get(user, 0) + delta
-        return {"user": user, "karma": _karma_store[user], "available": True}
+# --------------------------- in-memory stub store ------------------------------
 
-    def _get_karma_leaderboard(limit: int = 10) -> dict:
-        """Stubbed leaderboard based on the in-memory store."""
-        leaderboard: List[Tuple[str, int]] = sorted(
-            _karma_store.items(), key=lambda item: item[1], reverse=True
-        )[:limit]
-        return {"leaderboard": leaderboard, "available": True}
+_karma_store: Dict[str, float] = {}
 
 
-def get_profile_karma(user: str) -> dict:
-    """Return karma details for ``user``.
+# --------------------------- helpers ------------------------------------------
 
-    Parameters
-    ----------
-    user:
-        Username to look up.
-
-    Returns
-    -------
-    dict
-        Karma information, or ``{"available": False}`` on failure.
-    """
-
-    try:
-        return _get_profile_karma(user)
-    except Exception:
-        return {"available": False}
+def _ok(payload: Dict[str, Any]) -> Dict[str, Any]:
+    payload.setdefault("available", True)
+    return payload
 
 
-def adjust_karma(user: str, delta: int) -> dict:
-    """Adjust ``user``'s karma by ``delta``.
-
-    Returns updated karma details, or ``{"available": False}`` on failure.
-    """
-
-    try:
-        return _adjust_karma(user, delta)
-    except Exception:
-        return {"available": False}
+def _err(user: str | None, msg: str) -> Dict[str, Any]:
+    out: Dict[str, Any] = {"available": False, "error": msg}
+    if user is not None:
+        out["user"] = user
+        out["karma"] = float(_karma_store.get(user, 0.0))
+    return out
 
 
-def get_karma_leaderboard(limit: int = 10) -> dict:
-    """Return top ``limit`` users by karma.
+# --------------------------- public API ---------------------------------------
 
-    Returns a mapping containing the leaderboard, or ``{"available": False}``
-    on failure.
-    """
+def get_profile_karma(user: str) -> Dict[str, Any]:
+    """Return karma info for `user` with a consistent shape."""
+    # 1) in-process superNova_2177
+    if sn_mod and hasattr(sn_mod, "get_profile_karma") and USE_REAL_BACKEND:
+        try:
+            val = getattr(sn_mod, "get_profile_karma")(user)
+            # Normalize possible shapes
+            if isinstance(val, dict):
+                karma = val.get("karma", val.get("score", val.get("value", 0)))
+            else:
+                karma = val
+            return _ok({"user": user, "karma": float(karma)})
+        except Exception as exc:  # pragma: no cover
+            return _err(user, str(exc))
 
-    try:
-        return _get_karma_leaderboard(limit)
-    except Exception:
-        return {"available": False}
+    # 2) HTTP backend
+    if USE_REAL_BACKEND:
+        try:
+            resp = requests.get(f"{BACKEND_URL}/karma/{user}", timeout=10)
+            resp.raise_for_status()
+            data = resp.json()
+            karma = data.get("karma", data.get("score", 0.0))
+            return _ok({"user": user, "karma": float(karma)})
+        except Exception as exc:  # pragma: no cover
+            return _err(user, str(exc))
+
+    # 3) stub
+    return {"available": False, "user": user, "karma": float(_karma_store.get(user, 0.0))}
+
+
+def adjust_karma(user: str, delta: float) -> Dict[str, Any]:
+    """Adjust `user`'s karma by `delta` and return updated value."""
+    # 1) in-process superNova_2177
+    if sn_mod and hasattr(sn_mod, "adjust_karma") and USE_REAL_BACKEND:
+        try:
+            val = getattr(sn_mod, "adjust_karma")(user, delta)
+            # Normalize
+            if isinstance(val, dict):
+                karma = val.get("karma", val.get("score", 0.0))
+            else:
+                karma = val
+            return _ok({"user": user, "karma": float(karma)})
+        except Exception as exc:  # pragma: no cover
+            return _err(user, str(exc))
+
+    # 2) HTTP backend
+    if USE_REAL_BACKEND:
+        try:
+            resp = requests.post(
+                f"{BACKEND_URL}/karma/{user}/adjust",
+                json={"delta": float(delta)},
+                timeout=10,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            karma = data.get("karma", data.get("score", 0.0))
+            return _ok({"user": user, "karma": float(karma)})
+        except Exception as exc:  # pragma: no cover
+            return _err(user, str(exc))
+
+    # 3) stub
+    new_val = float(_karma_store.get(user, 0.0)) + float(delta)
+    _karma_store[user] = new_val
+    # Mark as unavailable so callers know it's a demo value
+    return {"available": False, "user": user, "karma": new_val}
+
+
+def get_karma_leaderboard(limit: int = 10) -> Dict[str, Any]:
+    """Return top `limit` users by karma with a consistent shape."""
+    # 1) in-process superNova_2177
+    if sn_mod and hasattr(sn_mod, "get_karma_leaderboard") and USE_REAL_BACKEND:
+        try:
+            res = getattr(sn_mod, "get_karma_leaderboard")(limit)
+            # Normalize shapes: dict with "leaderboard" OR raw list
+            if isinstance(res, dict):
+                lb = res.get("leaderboard", res.get("items", []))
+            else:
+                lb = res
+            # Ensure list of (user, karma) tuples
+            leaderboard: List[Tuple[str, float]] = []
+            for item in (lb or []):
+                if isinstance(item, (list, tuple)) and len(item) >= 2:
+                    leaderboard.append((str(item[0]), float(item[1])))
+                elif isinstance(item, dict):
+                    leaderboard.append((str(item.get("user") or item.get("username")), float(item.get("karma", 0.0))))
+            return _ok({"leaderboard": leaderboard[: max(1, int(limit))]})
+        except Exception as exc:  # pragma: no cover
+            return {"available": False, "leaderboard": [], "error": str(exc)}
+
+    # 2) HTTP backend
+    if USE_REAL_BACKEND:
+        try:
+            resp = requests.get(f"{BACKEND_URL}/karma/leaderboard", params={"limit": int(limit)}, timeout=10)
+            resp.raise_for_status()
+            data = resp.json()
+            lb = data.get("leaderboard", data if isinstance(data, list) else [])
+            leaderboard: List[Tuple[str, float]] = []
+            for item in (lb or []):
+                if isinstance(item, (list, tuple)) and len(item) >= 2:
+                    leaderboard.append((str(item[0]), float(item[1])))
+                elif isinstance(item, dict):
+                    leaderboard.append((str(item.get("user") or item.get("username")), float(item.get("karma", 0.0))))
+            return _ok({"leaderboard": leaderboard[: max(1, int(limit))]})
+        except Exception as exc:  # pragma: no cover
+            return {"available": False, "leaderboard": [], "error": str(exc)}
+
+    # 3) stub
+    leaderboard_stub: List[Tuple[str, float]] = sorted(
+        _karma_store.items(), key=lambda kv: kv[1], reverse=True
+    )[: max(1, int(limit))]
+    return {"available": False, "leaderboard": leaderboard_stub}
+
+
+__all__ = ["get_profile_karma", "adjust_karma", "get_karma_leaderboard"]
