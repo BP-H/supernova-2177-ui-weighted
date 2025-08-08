@@ -2497,10 +2497,12 @@ def get_music_generator(
 from login_router import router as login_router
 from video_chat_router import router as video_chat_router
 from moderation_router import router as moderation_router
+from governance_router import router as governance_router  # ADDED
 
 app.include_router(login_router)
 app.include_router(video_chat_router)
 app.include_router(moderation_router)
+app.include_router(governance_router)  # ADDED
 
 
 # Endpoints (Full implementation from FastAPI files, enhanced)
