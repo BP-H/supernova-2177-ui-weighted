@@ -5,13 +5,14 @@
 
 from __future__ import annotations
 
+import os
+from datetime import datetime
+from typing import Optional
+
 try:
     import streamlit as st
 except Exception:  # pragma: no cover - streamlit not available
     st = None  # type: ignore
-
-from datetime import datetime
-from typing import Optional
 
 from causal_graph import InfluenceGraph
 
@@ -25,11 +26,35 @@ PROVIDERS = {
 }
 
 
+def read_openai_key() -> str:
+    """Return the OpenAI API key from session, secrets, or environment."""
+
+    key = ""
+    if st is not None:
+        session_val = st.session_state.get("OPENAI_API_KEY") or st.session_state.get(
+            "openai_api_key"
+        )
+        if isinstance(session_val, str) and session_val.strip():
+            key = session_val.strip()
+        else:
+            try:
+                secret_val = st.secrets.get("OPENAI_API_KEY") or st.secrets.get(
+                    "openai_api_key"
+                )
+                if isinstance(secret_val, str) and secret_val.strip():
+                    key = secret_val.strip()
+            except Exception:
+                pass
+    if not key:
+        key = os.environ.get("OPENAI_API_KEY", "").strip()
+    return key
+
+
 def render_api_key_ui(
     default: str = "Dummy",
     *,
     key_prefix: str = "main",
-) -> dict[str, str | None]:
+) -> dict[str, str | None | bool]:
     """Render model selection and API key fields with unique widget keys.
 
     Parameters
@@ -42,11 +67,11 @@ def render_api_key_ui(
 
     Returns
     -------
-    dict[str, str | None]
-        Dictionary containing ``model`` and ``api_key`` values.
+    dict[str, str | None | bool]
+        Dictionary containing ``model``, ``api_key`` and a ``disabled`` flag.
     """
     if st is None:
-        return {"model": "dummy", "api_key": None}
+        return {"model": "dummy", "api_key": None, "disabled": False}
 
 
     names = list(PROVIDERS.keys())
@@ -59,18 +84,24 @@ def render_api_key_ui(
     choice = st.selectbox("LLM Model", names, index=index, key=f"{prefix}model")
     model, key_name = PROVIDERS[choice]
     key_val = ""
+    disabled = False
+    actual_key: str | None = None
     if key_name is not None:
+        default_val = read_openai_key() if key_name == "OPENAI_API_KEY" else os.getenv(key_name, "")
         key_val = st.text_input(
             f"{choice} API Key",
             type="password",
-            value=st.session_state.get(key_name, ""),
-            key=f"{prefix}{model}_api_key",
+            value=st.session_state.get(key_name, default_val),
+            key=f"{prefix}{model}_api_key_v2",
         )
-
+        actual_key = (key_val or st.session_state.get(key_name) or default_val).strip()
         if key_val:
-            st.session_state[key_name] = key_val
+            st.session_state[key_name] = key_val.strip()
+        if not actual_key:
+            st.warning(f"{choice} API key missing; related actions disabled.")
+            disabled = True
     st.session_state["selected_model"] = model
-    return {"model": model, "api_key": key_val or st.session_state.get(key_name)}
+    return {"model": model, "api_key": actual_key, "disabled": disabled}
 
 
 def record_simulation_event(
