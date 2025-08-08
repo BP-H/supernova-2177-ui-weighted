@@ -5,22 +5,21 @@ export default function Home() {
     <main style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
       <h1 style={{ fontSize: 28, marginBottom: 16 }}>superNova_2177</h1>
       <p style={{ opacity: 0.8, marginBottom: 24 }}>
-        Minimal layout test. If you see this on Vercel, we’re good.
+        Welcome to the gateway. Choose your reality.
       </p>
-
       <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
         <Link
           href="/multiverse"
           style={{
             padding: '10px 14px',
             borderRadius: 12,
-            border: '1px solid #2e374d',
+            border: '1px solid #8338ec',
+            color: '#8338ec',
             textDecoration: 'none'
           }}
         >
           Enter Multiverse →
         </Link>
-
         <Link
           href="/feed"
           style={{
@@ -30,7 +29,7 @@ export default function Home() {
             textDecoration: 'none'
           }}
         >
-          Go to Feed →
+          Regular Feed →
         </Link>
       </div>
     </main>
