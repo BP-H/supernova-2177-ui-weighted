@@ -1,108 +1,144 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
-import styles from './HomePage.module.css'; // Import the CSS module
+import { Suspense, useEffect, useState, useRef, useMemo } from 'react';
+import Link from 'next/link';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Points, PointMaterial } from '@react-three/drei';
+import * as random from 'maath/random/dist/maath-random.esm';
+import { 
+  Home, 
+  User, 
+  MessageSquare, 
+  Settings, 
+  LayoutGrid,
+  Vote,
+  GitFork,
+  Bot
+} from 'lucide-react';
+import styles from './HomePage.module.css';
 
-// --- Data for the Feed ---
-// Storing content in an array makes it easy to manage.
-const feedData = [
-  {
-    title: 'Reality #2177: The Neon Dimension',
-    content: 'In this reality, consciousness flows through digital streams. The boundaries between thought and code have dissolved. Every interaction creates ripples across parallel universes.',
-  },
-  {
-    title: 'Quantum Entanglement Alert',
-    content: 'Multiple timelines are converging at this exact moment. Observers report seeing their alternate selves in reflections. The fabric of spacetime feels unusually thin today.',
-  },
-  {
-    title: 'Portal Discovery: Dimension X-99',
-    content: 'A new gateway has been discovered leading to a universe where physics works backwards. Time flows in reverse, gravity pushes instead of pulls, and light creates shadows.',
-  },
-];
+// --- 3D Background Component ---
+function Stars3D(props) {
+  const ref = useRef();
+  const [sphere] = useState(() => random.inSphere(new Float32Array(5000), { radius: 1.2 }));
 
-// --- Sub-Components ---
-// Breaking the UI into smaller pieces makes the code much cleaner.
+  useFrame((state, delta) => {
+    ref.current.rotation.x -= delta / 10;
+    ref.current.rotation.y -= delta / 15;
+  });
 
-// Component for the animated background. It has no logic, so it's simple.
-function AnimatedBackground() {
   return (
-    <>
-      <div className={styles.stars} />
-      <div className={`${styles.floatingOrb} ${styles.orb1}`} />
-      <div className={`${styles.floatingOrb} ${styles.orb2}`} />
-    </>
+    <group rotation={[0, 0, Math.PI / 4]}>
+      <Points ref={ref} positions={sphere} stride={3} frustumCulled={false} {...props}>
+        <PointMaterial
+          transparent
+          color="#9b8cff"
+          size={0.005}
+          sizeAttenuation={true}
+          depthWrite={false}
+        />
+      </Points>
+    </group>
   );
 }
 
-// Component for a single feed card. It takes data as props.
-function FeedCard({ title, content }) {
+// --- UI Sub-Components ---
+
+const NavLink = ({ href, icon: Icon, children }) => (
+  <Link href={href} className={styles.navLink}>
+    <Icon size={20} />
+    <span>{children}</span>
+  </Link>
+);
+
+function Sidebar() {
+  const navItems = useMemo(() => [
+    { href: '/', icon: Home, label: 'Feed' },
+    { href: '/profile', icon: User, label: 'Profile' },
+    { href: '/messages', icon: MessageSquare, label: 'Messages' },
+    { href: '/proposals', icon: Vote, label: 'Proposals' },
+    { href: '/agents', icon: Bot, label: 'Agents' },
+    { href: '/settings', icon: Settings, label: 'Settings' },
+  ], []);
+
   return (
-    <div className={styles.feedCard}>
-      <h3>{title}</h3>
-      <p>{content}</p>
-    </div>
+    <aside className={styles.sidebar}>
+      <div className={styles.sidebarHeader}>
+        <LayoutGrid size={28} color="#9b8cff" />
+        <span>superNova_2177</span>
+      </div>
+      <nav className={styles.sidebarNav}>
+        {navItems.map(item => <NavLink key={item.label} {...item} />)}
+      </nav>
+    </aside>
+  );
+}
+
+function FeedCard({ title, content, href }) {
+  return (
+    <Link href={href} className={styles.feedCardLink}>
+      <div className={styles.feedCard}>
+        <h3>{title}</h3>
+        <p>{content}</p>
+      </div>
+    </Link>
   );
 }
 
 // --- Main Page Component ---
 export default function HomePage() {
-  // A more performant way to handle the particle effect on mouse move.
-  const handleMouseMove = useCallback((e) => {
-    // requestAnimationFrame ensures the browser isn't overwhelmed.
-    window.requestAnimationFrame(() => {
-      if (Math.random() > 0.9) { // Keep the random throttle
-        createParticle(e.pageX, e.pageY);
-      }
-    });
+  const [feedData, setFeedData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Apply global body style
+    document.body.className = styles.globalBody;
+
+    // Fetch data from our Next.js API route
+    fetch('/api/feed')
+      .then((res) => res.json())
+      .then((apiResponse) => {
+        setFeedData(apiResponse.data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error("Failed to fetch feed data:", error);
+        setIsLoading(false);
+      });
+
+    // Cleanup function
+    return () => {
+      document.body.className = '';
+    };
   }, []);
 
-  const createParticle = (x, y) => {
-    const particle = document.createElement('div');
-    // Using a separate stylesheet for the particle is even better, but this is fine.
-    particle.style.position = 'fixed';
-    particle.style.pointerEvents = 'none';
-    particle.style.borderRadius = '50%';
-    particle.style.zIndex = '1000';
-    particle.style.left = `${x}px`;
-    particle.style.top = `${y}px`;
-    particle.style.width = `${Math.random() * 20 + 10}px`;
-    particle.style.height = particle.style.width;
-    particle.style.background = `radial-gradient(circle, rgba(138, 56, 236, 0.8) 0%, transparent 70%)`;
-    particle.style.transition = 'transform 3s ease-out, opacity 3s ease-out';
-    particle.style.opacity = '1';
-    document.body.appendChild(particle);
-
-    // Animate and remove the particle
-    setTimeout(() => {
-        particle.style.transform = `translateY(-200px) scale(0.5)`;
-        particle.style.opacity = '0';
-        setTimeout(() => particle.remove(), 3000);
-    }, 10);
-  };
-  
-  // Set up the event listener when the component mounts.
-  useEffect(() => {
-    // Add the body class for global styles
-    document.body.className = styles.globalBody;
-    
-    document.addEventListener('mousemove', handleMouseMove);
-    // Cleanup function to remove the listener when the component unmounts.
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.body.className = ''; // Clean up body class
-    }
-  }, [handleMouseMove]);
-
   return (
-    <div className={styles.multiverseContainer}>
-      <AnimatedBackground />
-      <main className={styles.contentWrapper}>
-        <h1 className={styles.pageTitle}>MULTIVERSE FEED</h1>
-        <div className={styles.feedContainer}>
-          {/* Map over the data array to create the feed cards automatically */}
-          {feedData.map((item, index) => (
-            <FeedCard key={index} title={item.title} content={item.content} />
-          ))}
+    <div className={styles.pageLayout}>
+      <Sidebar />
+      <main className={styles.mainContent}>
+        <div className={styles.threeCanvas}>
+          <Canvas camera={{ position: [0, 0, 1] }}>
+            <Suspense fallback={null}>
+              <Stars3D />
+            </Suspense>
+          </Canvas>
+        </div>
+        <div className={styles.contentWrapper}>
+          <h1 className={styles.pageTitle}>MULTIVERSE FEED</h1>
+          {isLoading ? (
+            <p style={{ textAlign: 'center' }}>Loading feed from the cosmos...</p>
+          ) : (
+            <div className={styles.feedContainer}>
+              {feedData.map((item) => (
+                <FeedCard
+                  key={item.id}
+                  title={item.title}
+                  content={item.content}
+                  href={`/reality/${item.id}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>
