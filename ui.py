@@ -20,6 +20,16 @@ with st.sidebar:
     # (Optional) mirror to a simpler name if you read it elsewhere
     st.session_state["user_species"] = spec
 
+    # --- decision kind ---
+    kind = st.session_state.get("decision_kind", "standard")
+    st.selectbox(
+        "Decision kind",
+        ("standard", "important"),
+        index=0 if kind == "standard" else 1,
+        key="decision_kind",
+        help="standard = 60% yes · important = 90% yes",
+    )
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # App constants
@@ -134,6 +144,7 @@ def _init_state() -> None:
     st.session_state.setdefault("backend_url", os.environ.get("BACKEND_URL", "http://127.0.0.1:8000"))
     st.session_state.setdefault("__pages_map__", _discover_pages())
     st.session_state.setdefault("search_query", "")
+    st.session_state.setdefault("decision_kind", "standard")
 
 
 def _inject_css() -> None:
