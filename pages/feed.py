@@ -15,6 +15,9 @@ from services.coin_config import DEFAULT_REWARD_SPLIT
 from services.reactor_adapter import record_reaction, get_reactions
 from services.remix_adapter import create_remix
 
+# at top of file if not present
+import inspect
+
 fake = Faker()
 
 # ─────────────────────────── CSS: cleaner cards/buttons ───────────────────────────
@@ -110,11 +113,18 @@ def _react(post_id_int, user, emoji):
         pass
 
 def _popover(label: str, key: str):
-    pop = getattr(st, "popover", None)
-    if pop:  # Streamlit 1.33+
-        return pop(label, key=key, use_container_width=True)
-    # graceful fallback on older Streamlit
-    return st.expander(label, expanded=False)
+    """Open a popover in both newer and older Streamlit builds."""
+    pop = st.popover
+    try:
+        # Prefer passing key if this build supports it
+        if "key" in inspect.signature(pop).parameters:
+            return pop(label, key=key, use_container_width=True)
+        # Fallback: older builds don't accept key
+        return pop(label, use_container_width=True)
+    except TypeError:
+        # Very old signature without use_container_width
+        return pop(label)
+
 
 def _symbolic_spend(user, amount, memo):
     try:
