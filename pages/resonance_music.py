@@ -32,19 +32,37 @@ from utils.api import (
     get_resonance_summary,
     dispatch_route,
 )
+from .widget_keys import (
+    page_key,
+    RESONANCE_MUSIC_PAGE,
+)
+
+# Dedicated keys for this page to avoid collisions across Streamlit pages.
+# The `_v2` suffix is added via ``page_key`` to signal the new naming scheme.
+STATUS_PING_KEY = page_key(RESONANCE_MUSIC_PAGE, "status_ping")
+AMBIENT_LOOP_TOGGLE_KEY = page_key(RESONANCE_MUSIC_PAGE, "ambient_loop_toggle")
+PROFILE_SELECT_KEY = page_key(RESONANCE_MUSIC_PAGE, "profile_select")
+GENERATE_MUSIC_BTN_KEY = page_key(RESONANCE_MUSIC_PAGE, "generate_music_btn")
+FETCH_SUMMARY_BTN_KEY = page_key(RESONANCE_MUSIC_PAGE, "fetch_summary_btn")
+SUMMARY_AUDIO_PLAYER_KEY = page_key(
+    RESONANCE_MUSIC_PAGE,
+    "summary_audio_player",
+)
 
 # Initialize theme & global styles once
 apply_theme("light")
 inject_global_styles()
 
-# BACKEND_URL is defined in utils.api, but we keep it here for direct requests calls if needed
+# BACKEND_URL is defined in utils.api, but we keep it here for direct requests
+# if needed.
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 AMBIENT_URL = os.getenv(
     "AMBIENT_MP3_URL",
     "https://raw.githubusercontent.com/anars/blank-audio/master/10-minutes-of-silence.mp3",
 )
 DEFAULT_AMBIENT_URL = (
-    "https://raw.githubusercontent.com/anars/blank-audio/master/10-seconds-of-silence.mp3"
+    "https://raw.githubusercontent.com/anars/blank-audio/master/"
+    "10-seconds-of-silence.mp3"
 )
 
 
@@ -86,7 +104,7 @@ def main(main_container=None, status_container=None) -> None:
     theme_toggle("Dark Mode", key_suffix="music")
 
     # Auto-refresh for backend health check (global, outside main_container)
-    st_autorefresh(interval=30000, key="status_ping")
+    st_autorefresh(interval=30000, key=STATUS_PING_KEY)
 
     # Render global backend status indicator in the provided container
     status_ctx = safe_container(status_container)
@@ -97,7 +115,10 @@ def main(main_container=None, status_container=None) -> None:
     backend_ok = check_backend(endpoint="/healthz")
     if not backend_ok:
         alert(
-            f"Backend service unreachable. Please ensure it is running at {BACKEND_URL}.",
+            (
+                "Backend service unreachable. Please ensure it is running "
+                f"at {BACKEND_URL}."
+            ),
             "error",
         )
 
@@ -124,7 +145,7 @@ def render_resonance_music_page(
         play_music = st.toggle(
             "🎵 Ambient Loop",
             value=st.session_state["ambient_enabled"],
-            key="ambient_loop_toggle",
+            key=AMBIENT_LOOP_TOGGLE_KEY,
         )
         st.session_state["ambient_enabled"] = play_music
         if play_music:
@@ -132,15 +153,23 @@ def render_resonance_music_page(
             if audio_bytes:
                 encoded = base64.b64encode(audio_bytes).decode()
                 st.markdown(
-                    f"<audio id='ambient-audio' autoplay loop style='display:none'>"
-                    f"<source src='data:audio/mp3;base64,{encoded}' type='audio/mp3'></audio>",
+                    (
+                        "<audio id='ambient-audio' autoplay loop style='display:none'>"
+                        f"<source src='data:audio/mp3;base64,{encoded}' "
+                        "type='audio/mp3'></audio>"
+                    ),
                     unsafe_allow_html=True,
                 )
             else:
                 st.error("Failed to load ambient music. Please try again later.")
         else:
             st.markdown(
-                "<script>var a=document.getElementById('ambient-audio');if(a){a.pause();a.remove();}</script>",
+                (
+                    "<script>"
+                    "var a=document.getElementById('ambient-audio');"
+                    "if(a){a.pause();a.remove();}"
+                    "</script>"
+                ),
                 unsafe_allow_html=True,
             )
 
@@ -153,16 +182,19 @@ def render_resonance_music_page(
             combined_options,
             index=0,
             placeholder="tracks or resonance profiles",
-            key="resonance_profile_select",
+            key=PROFILE_SELECT_KEY,
         )
 
         midi_placeholder = st.empty()
 
         # --- Generate Music Section ---
-        if st.button("Generate music", key="generate_music_btn"):
+        if st.button("Generate music", key=GENERATE_MUSIC_BTN_KEY):
             if not backend_ok:
                 alert(
-                    f"Cannot generate music: Backend service unreachable at {BACKEND_URL}.",
+                    (
+                        "Cannot generate music: Backend service unreachable "
+                        f"at {BACKEND_URL}."
+                    ),
                     "error",
                 )
                 return
@@ -185,15 +217,19 @@ def render_resonance_music_page(
                 except Exception as exc:
                     alert(
                         "Music generation failed: "
-                        f"{exc}. Ensure backend is running and 'generate_midi' route is available.",
+                        f"{exc}. Ensure backend is running and "
+                        "'generate_midi' route is available.",
                         "error",
                     )
 
         # --- Fetch Resonance Summary Section ---
-        if st.button("Fetch resonance summary", key="fetch_summary_btn"):
+        if st.button("Fetch resonance summary", key=FETCH_SUMMARY_BTN_KEY):
             if not backend_ok:
                 alert(
-                    f"Cannot fetch summary: Backend service unreachable at {BACKEND_URL}.",
+                    (
+                        "Cannot fetch summary: Backend service unreachable "
+                        f"at {BACKEND_URL}."
+                    ),
                     "error",
                 )
                 return
@@ -204,7 +240,8 @@ def render_resonance_music_page(
                 except Exception as exc:
                     alert(
                         "Failed to load summary: "
-                        f"{exc}. Ensure backend is running and 'resonance-summary' route is available.",
+                        f"{exc}. Ensure backend is running and "
+                        "'resonance-summary' route is available.",
                         "error",
                     )
                 else:
@@ -233,7 +270,7 @@ def render_resonance_music_page(
                             st.audio(
                                 summary_midi_bytes,
                                 format="audio/midi",
-                                key="summary_audio_player",
+                                key=SUMMARY_AUDIO_PLAYER_KEY,
                             )
                             st.toast("Playing associated MIDI from summary.")
 
