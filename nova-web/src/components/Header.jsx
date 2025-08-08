@@ -1,16 +1,18 @@
+'use client';
+import Link from 'next/link';
+
 export default function Header() {
   return (
-    <header className="mb-4">
-      <h1 className="text-4xl font-extrabold tracking-tight text-white">
-        superNova_2177
-      </h1>
-      <div className="mt-3 flex items-center gap-3">
-        <span className="pill">Prototype feed (symbolic only)</span>
-        <span className="text-xs text-slate-400">
-          All metrics are symbolic reputation/engagement — not financial.
-        </span>
+    <header className="glass sticky top-0 z-30 mb-6 rounded-2xl px-4 py-3 backdrop-blur">
+      <div className="flex items-center justify-between">
+        <div className="text-xl font-bold tracking-wide">superNova_2177</div>
+        <nav className="hidden md:flex items-center gap-2">
+          <Link href="#" className="btn">🗳️ Voting</Link>
+          <Link href="#" className="btn">📄 Proposals</Link>
+          <Link href="#" className="btn">✅ Decisions</Link>
+          <Link href="#" className="btn">⚙️ Execution</Link>
+        </nav>
       </div>
-      <div className="mt-6 h-2 w-full rounded-full bg-white/5" />
     </header>
   );
 }
