@@ -1174,6 +1174,25 @@ def sanitize_text(text: str, config: "Config") -> str:
     return escaped[: config.MAX_INPUT_LENGTH]
 
 
+
+# supernova_2177.py
+@app.get("/universe")
+def get_universe_state():
+    return {
+        "nodes": [
+            {"id": "u1", "label": "Proposal A", "type": "proposal", "votes": {"human": 12, "company": 5, "ai": 2}},
+            {"id": "u2", "label": "Decision B", "type": "decision", "votes": {"human": 4, "company": 10, "ai": 1}},
+            # ...
+        ],
+        "links": [
+            {"source": "u1", "target": "u2"},
+            # ...
+        ]
+    }
+
+
+
+
 def detailed_error_log(exc: Exception) -> str:
     return "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
 
