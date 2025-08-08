@@ -1,7 +1,4 @@
 import Link from 'next/link';
-<Link href="/multiverse" style={{ padding:'10px 14px', borderRadius:12, border:'1px solid #2e374d', textDecoration:'none' }}>
-  Enter Multiverse →
-</Link>
 
 export default function Home() {
   return (
@@ -13,8 +10,25 @@ export default function Home() {
 
       <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
         <Link
+          href="/multiverse"
+          style={{
+            padding: '10px 14px',
+            borderRadius: 12,
+            border: '1px solid #2e374d',
+            textDecoration: 'none'
+          }}
+        >
+          Enter Multiverse →
+        </Link>
+
+        <Link
           href="/feed"
-          style={{ padding: '10px 14px', borderRadius: 12, border: '1px solid #2e374d', textDecoration: 'none' }}
+          style={{
+            padding: '10px 14px',
+            borderRadius: 12,
+            border: '1px solid #2e374d',
+            textDecoration: 'none'
+          }}
         >
           Go to Feed →
         </Link>
