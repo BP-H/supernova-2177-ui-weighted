@@ -1,22 +1,27 @@
 export default function Home() {
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#0b0d17', color: 'white' }}>
-      {/* Sidebar */}
-      <div style={{ width: '250px', background: '#11131a', padding: '1rem' }}>
-        <h2>superNova_2177</h2>
-        <ul>
-          <li>Feed</li>
-          <li>Messages</li>
-          <li>Decisions</li>
-          <li>Profile</li>
-        </ul>
+    <main style={{ padding: '2rem', fontFamily: 'sans-serif', color: 'white', background: '#0a0a0a' }}>
+      <h1>🚀 superNova_2177</h1>
+      <p>Welcome to the interactive universe feed — symbolic only.</p>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 3fr',
+        gap: '1rem',
+        marginTop: '2rem'
+      }}>
+        <aside style={{ background: '#111', padding: '1rem', borderRadius: '12px' }}>
+          <h3>Sidebar</h3>
+          <ul>
+            <li>Feed</li>
+            <li>Messages</li>
+            <li>Proposals</li>
+          </ul>
+        </aside>
+        <section style={{ background: '#181818', padding: '1rem', borderRadius: '12px' }}>
+          <h2>Universe Connections</h2>
+          <p>Here we will render the 3D forking worlds and voting logic.</p>
+        </section>
       </div>
-
-      {/* Main UI */}
-      <div style={{ flex: 1, padding: '2rem' }}>
-        <h1>🚀 The Cool UI Goes Here</h1>
-        <p>This is where we can hook in your supernova_2177.py voting + 3D connections.</p>
-      </div>
-    </div>
+    </main>
   );
 }
