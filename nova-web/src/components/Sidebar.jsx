@@ -1,60 +1,95 @@
 "use client";
-
+import { useAppState } from "@/lib/state";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const NavItem = ({ href, icon, label }) => {
+const NavButton = ({ href, children }) => {
   const pathname = usePathname();
   const active = pathname === href;
   return (
-    <Link
-      href={href}
-      className={`block w-full btn text-sm text-left ${active ? "ring-2 ring-[var(--ring)]" : ""}`}
-    >
-      <span className="w-5 text-center">{icon}</span>
-      <span>{label}</span>
+    <Link href={href}>
+      <button className="sn-btn" style={active ? { outline: "2px solid var(--ring)" } : undefined}>
+        {children}
+      </button>
     </Link>
   );
 };
 
 export default function Sidebar() {
+  const { state, set } = useAppState();
+
   return (
-    <aside className="w-[260px] hidden md:flex flex-col gap-3 p-3 border-r border-[var(--stroke)] bg-[var(--panel)]">
-      {/* Brand */}
-      <div className="card p-3">
-        <div className="font-bold text-lg">superNova_2177</div>
-        <div className="text-sm text-[var(--muted)]">Prototype (symbolic only)</div>
+    <aside className="sn-sidebar">
+      <div className="brand">💫 superNova_2177</div>
+
+      <div className="sn-card">
+        <img
+          src="https://placehold.co/320x140/11131d/FFFFFF?text=superNova_2177"
+          alt=""
+          style={{ width: "100%", borderRadius: 12 }}
+        />
+        <div style={{ marginTop: 8, fontWeight: 700 }}>taha_gungor</div>
+        <div style={{ opacity: 0.75 }}>ceo / test_tech</div>
       </div>
 
-      {/* Workspaces */}
-      <div className="text-xs text-[var(--muted)] px-1">Workspaces</div>
-      <NavItem href="/" icon="🏠" label="Test Tech" />
-      <NavItem href="/" icon="✨" label="superNova_2177" />
-      <NavItem href="/" icon="🌍" label="GLOBALRUNWAY" />
+      <div className="sn-sec">Identity</div>
+      <div className="sn-card">
+        <label style={{ fontSize: 12, opacity: 0.8 }}>I am a…</label>
+        <select
+          value={state.species}
+          onChange={(e) => set("species", e.target.value)}
+          style={{ width: "100%", padding: 10, borderRadius: 10, background: "#161a28", border: "1px solid var(--stroke)", color: "var(--text)" }}
+        >
+          <option value="human">human</option>
+          <option value="company">company</option>
+          <option value="ai">ai</option>
+        </select>
 
-      <div className="h-[1px] bg-[var(--stroke)] my-2" />
+        <div style={{ height: 8 }} />
 
-      {/* Navigate */}
-      <div className="text-xs text-[var(--muted)] px-1">Navigate</div>
-      <NavItem href="/" icon="📰" label="Feed" />
-      <NavItem href="/chat" icon="💬" label="Chat" />
-      <NavItem href="/messages" icon="📬" label="Messages" />
-      <NavItem href="/profile" icon="👤" label="Profile" />
-      <NavItem href="/proposals" icon="📑" label="Proposals" />
-      <NavItem href="/decisions" icon="✅" label="Decisions" />
-      <NavItem href="/execution" icon="⚙️" label="Execution" />
-
-      <div className="h-[1px] bg-[var(--stroke)] my-2" />
-
-      {/* Premium */}
-      <div className="text-xs text-[var(--muted)] px-1">Premium</div>
-      <NavItem href="/music" icon="🎶" label="Music" />
-      <NavItem href="/agents" icon="🚀" label="Agents" />
-      <NavItem href="/metaverse" icon="🌌" label="Enter Metaverse" />
-
-      <div className="mt-auto text-xs text-[var(--muted)] px-1">
-        Mathematically sucked into a superNova_2177 void — stay tuned for 3D immersion.
+        <label style={{ fontSize: 12, opacity: 0.8 }}>Decision kind</label>
+        <select
+          value={state.decisionKind}
+          onChange={(e) => set("decisionKind", e.target.value)}
+          style={{ width: "100%", padding: 10, borderRadius: 10, background: "#161a28", border: "1px solid var(--stroke)", color: "var(--text)" }}
+        >
+          <option value="standard">standard</option>
+          <option value="important">important</option>
+        </select>
       </div>
+
+      <div className="sn-sec">Backend</div>
+      <div className="sn-card">
+        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <input
+            type="checkbox"
+            checked={state.useRealBackend}
+            onChange={(e) => set("useRealBackend", e.target.checked)}
+          />
+          Use real backend
+        </label>
+        <div style={{ height: 8 }} />
+        <input
+          placeholder="https://api.example.com"
+          value={state.backendUrl}
+          onChange={(e) => set("backendUrl", e.target.value)}
+          style={{ width: "100%", padding: 10, borderRadius: 10, background: "#161a28", border: "1px solid var(--stroke)", color: "var(--text)" }}
+        />
+      </div>
+
+      <div className="sn-sec">Navigate</div>
+      <NavButton href="/">Feed</NavButton>
+      <NavButton href="/chat">Chat</NavButton>
+      <NavButton href="/messages">Messages</NavButton>
+      <NavButton href="/profile">Profile</NavButton>
+      <NavButton href="/proposals">Proposals</NavButton>
+      <NavButton href="/decisions">Decisions</NavButton>
+      <NavButton href="/execution">Execution</NavButton>
+
+      <div className="sn-sec">Premium</div>
+      <NavButton href="/music">Music</NavButton>
+      <NavButton href="/agents">Agents</NavButton>
+      <NavButton href="/metaverse">Enter Metaverse</NavButton>
     </aside>
   );
 }
