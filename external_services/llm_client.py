@@ -7,6 +7,7 @@ import os
 
 import httpx
 
+from utils.api_keys import get_api_key
 from .base_client import BaseClient
 
 
@@ -17,7 +18,7 @@ class LLMClient(BaseClient):
         url = api_url or os.getenv(
             "LLM_API_URL", "https://your-llm-endpoint.com/generate"
         )
-        key = api_key or os.getenv("LLM_API_KEY", "")
+        key = api_key or get_api_key("LLM_API_KEY")
         super().__init__(url, key)
 
     def get_prompt_template(self) -> str:
