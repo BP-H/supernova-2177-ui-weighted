@@ -15,6 +15,22 @@ from services.coin_config import DEFAULT_REWARD_SPLIT
 from services.reactor_adapter import record_reaction, get_reactions
 from services.remix_adapter import create_remix
 
+
+
+from pathlib import Path
+
+def _inject_css_file(path="assets/supernova.css"):
+    p = Path(path)
+    if p.exists():
+        st.markdown(f"<style>{p.read_text()}</style>", unsafe_allow_html=True)
+
+# ...later inside main():
+def main():
+    _inject_css_file()   # <— add this line first
+    # (rest of your code)
+
+
+
 fake = Faker()
 
 # ──────────────────────────────────────────────────────────────────────────────
