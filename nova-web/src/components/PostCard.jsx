@@ -1,24 +1,38 @@
+"use client";
+
+import { useState } from "react";
+
 export default function PostCard({ post }) {
+  const [likes, setLikes] = useState(post.likes || 0);
+  const [reacts, setReacts] = useState(post.reacts || 0);
+  const [reposts, setReposts] = useState(post.reposts || 0);
+
   return (
-    <div style={{
-      border:"1px solid rgba(122,162,255,.08)",
-      borderRadius:16, padding:16, margin:"16px 0",
-      background:"linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0))"
-    }}>
-      <div style={{display:"flex",gap:12,alignItems:"center"}}>
-        <img src={post.author_avatar} alt="" width={40} height={40} style={{borderRadius:"50%"}} />
+    <article className="card p-4 mb-4">
+      <div className="flex items-center gap-3 mb-2">
+        <img src={post.avatar} alt="" className="w-10 h-10 rounded-lg" />
         <div>
-          <div style={{fontWeight:700}}>{post.author_name}</div>
-          <div style={{opacity:.7, fontSize:13}}>{post.author_title}</div>
+          <div className="font-semibold">{post.author}</div>
+          <div className="text-sm text-[var(--muted)]">{post.title}</div>
         </div>
+        {post.promoted && <span className="badge ml-auto">Promoted</span>}
       </div>
-      <p style={{marginTop:12}}>{post.text}</p>
-      {post.image_url && (
-        <img src={post.image_url} alt="" style={{width:"100%", borderRadius:12, marginTop:8}} />
+
+      <div className="mb-3">{post.text}</div>
+      {post.image && (
+        <img src={post.image} alt="" className="rounded-xl border border-[var(--stroke)] mb-3" />
       )}
-      <div style={{opacity:.7, fontSize:13, marginTop:8}}>
-        {post.stats.likes} likes • {post.stats.comments} comments • {post.stats.reposts} reposts
+
+      <div className="flex flex-wrap gap-2">
+        <button className="btn" onClick={() => setLikes(l => l + 1)}>👍 Like {likes ? `· ${likes}` : ""}</button>
+        <button className="btn">💬 Comment</button>
+        <button className="btn" onClick={() => setReposts(r => r + 1)}>🔁 Repost {reposts ? `· ${reposts}` : ""}</button>
+        <button className="btn" onClick={() => setReacts(r => r + 1)}>🎉 React {reacts ? `· ${reacts}` : ""}</button>
+        <button className="btn">🎛️ Remix</button>
+        <button className="btn">💝 Tip</button>
+        <button className="btn">🏆 Reward</button>
+        <button className="btn">🧭 Share</button>
       </div>
-    </div>
+    </article>
   );
 }
