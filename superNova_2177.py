@@ -4144,7 +4144,7 @@ if __name__ == "__main__":
 
 # === WEIGHTED VOTING ENGINE (auto-added) =====================================
 from dataclasses import dataclass
-from typing import Literal, Dict, List
+from typing import Literal, Dict, List, Any
 
 Species = Literal["human","company","ai"]
 DecisionLevel = Literal["standard","important"]
@@ -4192,4 +4192,26 @@ def decide_weighted_api(proposal_id: int, level: str="standard"):
     status = "accepted" if (t["total"]>0 and (t["up"]/t["total"])>=thr) else "rejected"
     t.update({"proposal_id": int(proposal_id), "status": status, "threshold": thr})
     return t
+
+
+# --- Public wrappers -------------------------------------------------------
+def register_vote(proposal_id: int, voter: str, choice: str, species: str = "human") -> Dict[str, Any]:
+    """Record a vote using the weighted engine."""
+    return vote_weighted(proposal_id, voter, choice, species)
+
+
+def tally_votes(proposal_id: int) -> Dict[str, Any]:
+    """Return the weighted tally for a proposal."""
+    return tally_proposal_weighted(proposal_id)
+
+
+def get_threshold(level: str = "standard") -> float:
+    """Fetch the decision threshold for a given level."""
+    key = "important" if str(level).lower() == "important" else "standard"
+    return THRESHOLDS[key]
+
+
+def decide(proposal_id: int, level: str = "standard") -> Dict[str, Any]:
+    """Evaluate a proposal outcome using the weighted engine."""
+    return decide_weighted_api(proposal_id, level)
 # === END WEIGHTED VOTING ENGINE ==============================================
