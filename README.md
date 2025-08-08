@@ -90,6 +90,26 @@ python -m pip install -r requirements.txt
 streamlit run ui.py
 ````
 
+## 🪙 RootCoin basics
+
+RootCoin powers tipping and post rewards. The adapter resolves to in-process
+helpers, then HTTP endpoints when `USE_REAL_BACKEND=1` (configure with
+`BACKEND_URL`), and finally an in-memory stub.
+
+```python
+from services.coin_adapter import tip, get_balance, reward
+
+tip("alice", "bob", 5.0, "thanks")
+balance = get_balance("bob")["balance"]
+reward(123, None)  # uses the default reward split
+```
+
+## 📣 Feed Actions
+
+The feed now exposes **React**, **Remix**, **Tip**, and **Reward** buttons on
+each post. These actions fall back to local stubs when the backend is
+unavailable so the UI remains interactive.
+
 ## 🗳️ How voting works
 
 > STRICTLY A SOCIAL MEDIA PLATFORM
