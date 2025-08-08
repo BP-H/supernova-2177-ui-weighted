@@ -2,5 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { --bg:#0a0b10; }
-html,body { background:var(--bg); margin:0; }
+/* Dark theme tokens */
+:root{
+  --bg:#0b0c11; --panel:#0f1117; --panel-2:#10131a; --card:#11131d;
+  --stroke:#1b2130; --muted:#a1a7b3; --text:#e9ecf1; --brand:#9b8cff;
+  --ring:rgba(155,140,255,.35);
+}
+
+html,body{height:100%;}
+body{
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* Little helpers */
+.badge{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;
+  border:1px solid var(--stroke);border-radius:999px;background:#0f1320;color:#c7d2fe;font-size:.75rem;}
+.card{border:1px solid var(--stroke);background:var(--card);border-radius:16px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  height:40px;padding:0 .9rem;border:1px solid var(--stroke);border-radius:10px;background:#121724;}
+.btn:hover{background:#151a27;border-color:#2e374d;box-shadow:0 0 0 2px var(--ring) inset;}
+.link{color:#c7d2fe;}
