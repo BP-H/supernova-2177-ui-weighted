@@ -1,8 +1,5 @@
-export default function Page() {
-  return (
-    <main className="p-6">
-      <h1 className="text-2xl font-semibold">superNova_2177</h1>
-      <p className="opacity-70 mt-2">Hello from Next.js — build should pass nowww.</p>
-    </main>
-  );
+// nova-web/app/page.js
+import { redirect } from "next/navigation";
+export default function Home() {
+  redirect("/feed");
 }
