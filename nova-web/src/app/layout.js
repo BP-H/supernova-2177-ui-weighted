@@ -1,15 +1,14 @@
-// nova-web/src/app/layout.js
-import "./globals.css";
+// Root layout required by Next.js App Router
+import './globals.css';
 
-export const metadata = {
-  title: "superNova_2177",
-  description: "Prototype UI",
-};
+export const metadata = { title: 'superNova_2177' };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="min-h-screen bg-[#0a0b10] text-white antialiased">
+        {children}
+      </body>
     </html>
   );
 }
