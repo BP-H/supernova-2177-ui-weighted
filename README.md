@@ -75,6 +75,9 @@ supernova-federate create --creator Alice --config HARMONY_WEIGHT=0.9
 # Cast a vote on a fork
 
 supernova-federate vote <fork_id> --voter Bob --vote yes
+
+# Quick weighted voting demo
+python demos/quick_weighted_demo.py
 ````
 
 The UI listens on [http://localhost:8888](http://localhost:8888) by default.

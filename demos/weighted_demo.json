@@ -1,0 +1,9 @@
+{
+  "proposals": [
+    {
+      "author": "alice",
+      "title": "Increase resonance capacity",
+      "body": "Upgrade the harmonic engine to support weighted voting."
+    }
+  ]
+}
