@@ -1,63 +1,59 @@
 'use client';
-
 import Image from 'next/image';
-import { useState } from 'react';
-import ReactionBar from './ReactionBar';
 
-export default function PostCard({ post }) {
-  const [shareOpen, setShareOpen] = useState(false);
-  const { author, title, avatar, text, image, stats } = post;
+const avatarUrl = (seed) =>
+  `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(seed || 'user')}`;
 
+export default function PostCard({
+  authorName = 'Ann Guzman',
+  authorTitle = 'Public relations officer at Silva Group • 1st',
+  text = 'Prototype content — symbolic only.',
+  imageUrl = '',
+  promoted = false,
+  stats = { likes: 0, comments: 0, reposts: 0 }
+}) {
   return (
-    <article className="glass p-5">
+    <article className="content-card">
       {/* header */}
-      <div className="flex gap-4">
-        <Image src={avatar} alt={author} width={48} height={48} className="rounded-full" />
-        <div>
-          <div className="font-semibold text-white">{author}</div>
-          <div className="text-sm text-slate-400">{title}</div>
+      <div className="flex items-start gap-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={avatarUrl(authorName)} alt="" width={48} height={48} className="rounded-full" />
+        <div className="flex-1">
+          <div className="font-semibold">{authorName}</div>
+          <div className="small-muted">{authorTitle}</div>
+          {promoted && <div className="badge mt-2">Promoted</div>}
         </div>
       </div>
 
       {/* body */}
-      <p className="mt-4 text-slate-200">{text}</p>
-      {image && (
+      <div className="mt-4 text-slate-200">{text}</div>
+      {imageUrl ? (
         <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
-          <Image src={image} alt="" width={1600} height={900} className="h-auto w-full" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={imageUrl} alt="" className="w-full h-auto" />
         </div>
-      )}
+      ) : null}
 
       {/* meta */}
-      <div className="mt-3 text-sm text-slate-400">
+      <div className="meta-row mt-3">
         {stats.likes} likes • {stats.comments} comments • {stats.reposts} reposts
-        {stats.edited && ' • Edited'}
       </div>
 
       {/* actions */}
-      <div className="mt-4 grid grid-cols-4 gap-3">
+      <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
         <button className="btn">👍 Like</button>
         <button className="btn">💬 Comment</button>
         <button className="btn">🔁 Repost</button>
-        <button className="btn" onClick={() => setShareOpen(v => !v)}>📤 Share</button>
+        <button className="btn">📤 Share</button>
       </div>
 
-      {/* emoji reactions */}
-      <div className="mt-3">
-        <ReactionBar />
+      {/* secondary */}
+      <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <button className="btn ghost">❤️ React</button>
+        <button className="btn ghost">🎛️ Remix</button>
+        <button className="btn ghost">💝 Tip</button>
+        <button className="btn ghost">🏆 Reward</button>
       </div>
-
-      {/* remix/tip row */}
-      <div className="mt-3 grid grid-cols-2 gap-3">
-        <button className="btn btn-ghost">🎛️ Remix</button>
-        <button className="btn btn-ghost">💝 Tip</button>
-      </div>
-
-      {/* share menu */}
-      {shareOpen && (
-        <div className="mt-3 rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-slate-300">
-          Share options: copy link • post to your feed • send to a friend
-        </div>
-      )}
     </article>
   );
 }
