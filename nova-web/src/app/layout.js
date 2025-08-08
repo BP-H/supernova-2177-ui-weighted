@@ -1,17 +1,17 @@
-import "./globals.css";
-import Shell from "@/components/Shell";
+// File: app/layout.js
+import './globals.css'
 
 export const metadata = {
-  title: "superNova_2177",
-  description: "Prototype UI — symbolic only",
-};
+  title: 'superNova_2177',
+  description: 'Mathematically sucked into a void of innovation',
+}
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
-        <Shell>{children}</Shell>
+      <body className="bg-nova-dark text-white">
+        {children}
       </body>
     </html>
-  );
+  )
 }
