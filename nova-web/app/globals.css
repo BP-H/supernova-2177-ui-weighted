@@ -1,5 +1,0 @@
-/* nova-web/app/globals.css */
-* { box-sizing: border-box; }
-html, body { margin: 0; }
-button { background:#12182a; color:#fff; border:1px solid #1c2130; border-radius:12px; padding:8px 10px; cursor:pointer; }
-button:hover { border-color:#394156; }
