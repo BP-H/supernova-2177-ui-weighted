@@ -44,3 +44,59 @@ button{cursor:pointer}
 .sn-actions{display:flex;gap:10px;margin-top:10px}
 .sn-actions button{border:1px solid var(--stroke);background:#151a2a;border-radius:10px;color:#e9ecf1;padding:8px 12px}
 .sn-actions button:hover{border-color:#394156}
+
+
+:root{
+  --bg:#0a0b10; --panel:#0f1117; --panel-2:#10131a; --card:#11131d;
+  --stroke:#1c2130; --muted:#a1a7b3; --text:#e9ecf1; --brand:#9b8cff;
+  --ring:rgba(155,140,255,.35);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; background:var(--bg); color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"}
+
+.sn-root{display:flex; min-height:100dvh}
+.sn-sidebar{
+  width:300px; padding:14px; position:sticky; top:0; height:100dvh; overflow:auto;
+  background:
+    radial-gradient(90% 70% at 0% 0%, rgba(155,140,255,.08), transparent 60%),
+    linear-gradient(180deg, var(--panel), var(--panel-2));
+  border-right:1px solid var(--stroke);
+}
+.sn-card{border:1px solid var(--stroke); background:var(--card); border-radius:16px; overflow:hidden; margin-bottom:12px}
+.sn-cover{width:100%; display:block}
+.sn-title{font-weight:700; padding:10px 12px}
+.sn-sub{color:var(--muted); padding:0 12px 12px}
+
+.sn-section{color:var(--muted); font-size:.85rem; margin:12px 4px 6px}
+.sn-nav{display:flex; flex-direction:column; gap:6px}
+.sn-navbtn{
+  display:flex; align-items:center; gap:10px; height:38px; padding:0 12px; border-radius:12px;
+  border:1px solid var(--stroke); background:#131724; color:#e5e7eb; text-decoration:none; font-weight:600;
+}
+.sn-navbtn:hover{background:#151a2a; border-color:#2e374d; box-shadow:0 0 0 2px var(--ring) inset}
+.sn-navbtn.active{border-color:#394156; box-shadow:0 0 0 2px var(--ring) inset}
+.sn-ico{width:18px; text-align:center}
+
+.sn-search input,.sn-input{
+  width:100%; height:38px; padding:0 12px; border-radius:12px; border:1px solid var(--stroke); background:#161a28; color:#fff;
+}
+.sn-kv{display:grid; gap:8px}
+.sn-switch{display:flex; align-items:center; gap:8px}
+.sn-pill{
+  background:#12182a; color:#fff; border:1px solid var(--stroke); border-radius:12px; padding:8px 10px; width:100%; text-align:left;
+}
+.sn-foot{color:var(--muted); font-size:.8rem; margin-top:12px}
+
+.sn-main{flex:1; min-width:0}
+.sn-header{padding:18px 18px 8px}
+.sn-brand{margin:0}
+.sn-sweep{height:10px; border-radius:999px; background:linear-gradient(90deg, rgba(155,140,255,.16), rgba(155,140,255,0) 70%); border:1px solid var(--stroke); margin:10px 0}
+.sn-quick{display:flex; gap:8px}
+.sn-quick button{
+  background:#12182a; color:#fff; border-radius:12px; border:1px solid var(--stroke); padding:8px 12px; cursor:pointer
+}
+.sn-quick button:hover{border-color:#394156; box-shadow:0 0 0 2px var(--ring) inset}
+
+.sn-content{padding:18px}
