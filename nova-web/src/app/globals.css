@@ -1,42 +1,7 @@
+/* nova-web/src/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Subtle grid + aurora glow */
 :root { color-scheme: dark; }
 html, body { height: 100%; }
-
-body.bg-grid {
-  background:
-    radial-gradient(1200px 600px at -10% -10%, rgba(56,189,248,.10), transparent 60%),
-    radial-gradient(800px 500px at 110% -10%, rgba(168,85,247,.10), transparent 60%),
-    radial-gradient(1000px 700px at 50% 110%, rgba(34,197,94,.08), transparent 60%),
-    #0b0b10;
-}
-
-/* Card + button polish */
-.glass {
-  @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl
-         shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_10px_30px_rgba(0,0,0,0.35)]
-         transition-all;
-}
-.glass:hover {
-  @apply shadow-[0_0_0_1px_rgba(255,255,255,0.07),0_20px_50px_rgba(0,0,0,0.45)];
-}
-
-.btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2
-         bg-slate-800/60 border border-white/10 text-slate-200
-         hover:bg-slate-700/60 hover:border-white/20 transition;
-}
-.btn-ghost { @apply bg-transparent border-white/10 hover:bg-white/5; }
-
-.pill {
-  @apply inline-flex items-center gap-2 rounded-full px-3 py-1
-         border border-white/10 bg-white/5 text-xs text-slate-300;
-}
-
-.emoji {
-  @apply inline-flex items-center gap-1 px-3 py-2 rounded-full
-         border border-white/10 bg-slate-800/60 hover:bg-slate-700/60 text-sm;
-}
