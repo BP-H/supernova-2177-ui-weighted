@@ -1,455 +1,290 @@
-'use client'
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, Home, MessageSquare, Mail, User, FileText, CheckCircle, Settings, Music, Rocket, Sparkles, X, Menu, Bell, Plus, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Globe, Code, Palette } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+'use client'; // This makes it fun and interactive!
 
-export default function SuperNovaApp() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [currentUniverse, setCurrentUniverse] = useState('feed');
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [likedPosts, setLikedPosts] = useState(new Set());
-  const [bookmarkedPosts, setBookmarkedPosts] = useState(new Set());
-  const sidebarRef = useRef(null);
+import Link from 'next/link';
+import { useEffect } from 'react';
 
-  // Close sidebar when clicking outside
+export default function Multiverse() {
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-        setSidebarOpen(false);
+    // Fun particles on mouse move (if you want this – skip if not needed)
+    const handleMouseMove = (e) => {
+      if (Math.random() > 0.95) {
+        createParticle(e.pageX, e.pageY);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    const createParticle = (x, y) => {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+      particle.style.background = `radial-gradient(circle, rgba(138,56,236,0.8) 0%, transparent 70%)`;
+      particle.style.width = `${Math.random() * 20 + 10}px`;
+      particle.style.height = particle.style.width;
+      document.body.appendChild(particle);
+      particle.classList.add('active');
+      setTimeout(() => particle.remove(), 3000);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const universes = [
-    { id: 'feed', label: 'Feed', icon: Home, color: 'from-purple-500 to-pink-500' },
-    { id: 'chat', label: 'Chat', icon: MessageSquare, color: 'from-blue-500 to-cyan-500' },
-    { id: 'messages', label: 'Messages', icon: Mail, color: 'from-green-500 to-emerald-500' },
-    { id: 'profile', label: 'Profile', icon: User, color: 'from-orange-500 to-red-500' },
-    { id: 'proposals', label: 'Proposals', icon: FileText, color: 'from-indigo-500 to-purple-500' },
-    { id: 'decisions', label: 'Decisions', icon: CheckCircle, color: 'from-teal-500 to-green-500' },
-    { id: 'execution', label: 'Execution', icon: Settings, color: 'from-gray-500 to-gray-700' },
-    { id: 'metaverse', label: 'Enter Metaverse', icon: Globe, color: 'from-pink-500 to-rose-500' },
-    { id: 'universe2d', label: 'Universe2D', icon: Palette, color: 'from-yellow-500 to-orange-500' },
-    { id: 'page-ai', label: 'Page AI', icon: Code, color: 'from-cyan-500 to-blue-500' },
-  ];
-
-  const posts = [
-    {
-      id: 1,
-      author: 'taha_gungor',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=taha',
-      content: 'Just launched superNova_2177 🚀 Mathematically sucked into a void of innovation!',
-      likes: 342,
-      comments: 28,
-      time: '2h ago',
-      image: 'https://picsum.photos/600/400?random=1',
-      universe: 'feed'
-    },
-    {
-      id: 2,
-      author: 'test_tech',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tech',
-      content: 'New proposal: Implement weighted voting system for AI entities 🤖',
-      likes: 156,
-      comments: 42,
-      time: '5h ago',
-      universe: 'proposals'
-    },
-    {
-      id: 3,
-      author: 'globalrunway',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=global',
-      content: 'The future of decentralized decision-making is here. Join us in the metaverse! ✨',
-      likes: 892,
-      comments: 103,
-      time: '1d ago',
-      image: 'https://picsum.photos/600/600?random=2',
-      universe: 'metaverse'
-    },
-  ];
-
-  const stories = [
-    { id: 1, name: 'Your Story', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=you', isUser: true },
-    { id: 2, name: 'test_tech', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tech' },
-    { id: 3, name: 'nova_ai', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ai' },
-    { id: 4, name: 'metaverse', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=meta' },
-    { id: 5, name: 'global', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=global' },
-  ];
-
-  const handleLike = (postId) => {
-    setLikedPosts(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleBookmark = (postId) => {
-    setBookmarkedPosts(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
-      return newSet;
-    });
-  };
-
-  const renderUniverse = () => {
-    const universe = universes.find(u => u.id === currentUniverse);
-    
-    return (
-      <motion.div
-        key={currentUniverse}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3 }}
-        className="min-h-screen"
-      >
-        {/* Universe Header */}
-        <div className={`bg-gradient-to-r ${universe?.color || 'from-purple-500 to-pink-500'} p-8 rounded-2xl mb-8`}>
-          <h2 className="text-4xl font-bold mb-2">{universe?.label} Universe</h2>
-          <p className="text-white/80">Explore the {universe?.label?.toLowerCase()} dimension of superNova_2177</p>
-        </div>
-
-        {/* Stories - Only show in feed universe */}
-        {currentUniverse === 'feed' && (
-          <div className="flex space-x-4 overflow-x-auto pb-4 mb-8">
-            {stories.map((story) => (
-              <motion.button
-                key={story.id}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex-shrink-0 text-center"
-              >
-                <div className={`w-16 h-16 rounded-full p-0.5 ${story.isUser ? 'bg-gray-700' : 'bg-gradient-to-tr from-purple-500 to-pink-500'}`}>
-                  <div className="w-full h-full rounded-full bg-black p-0.5">
-                    <img
-                      src={story.avatar}
-                      alt={story.name}
-                      className="w-full h-full rounded-full"
-                    />
-                  </div>
-                </div>
-                <p className="text-xs mt-1">{story.name}</p>
-              </motion.button>
-            ))}
-          </div>
-        )}
-
-        {/* Universe-specific content */}
-        {currentUniverse === 'metaverse' && (
-          <div className="mb-8 p-6 bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-500/30">
-            <h3 className="text-2xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-              🌌 Metaverse Portal Active
-            </h3>
-            <p className="text-gray-300 mb-4">
-              You're now connected to the superNova metaverse. Experience decentralized reality.
-            </p>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-black/40 p-4 rounded-lg text-center">
-                <div className="text-3xl mb-2">🌍</div>
-                <p className="text-sm">World 1</p>
-              </div>
-              <div className="bg-black/40 p-4 rounded-lg text-center">
-                <div className="text-3xl mb-2">🌎</div>
-                <p className="text-sm">World 2</p>
-              </div>
-              <div className="bg-black/40 p-4 rounded-lg text-center">
-                <div className="text-3xl mb-2">🌏</div>
-                <p className="text-sm">World 3</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentUniverse === 'universe2d' && (
-          <div className="mb-8 p-6 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 rounded-xl border border-yellow-500/30">
-            <h3 className="text-2xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">
-              🎨 Universe2D Canvas
-            </h3>
-            <div className="aspect-video bg-black/40 rounded-lg flex items-center justify-center">
-              <p className="text-gray-400">2D Universe Rendering Engine</p>
-            </div>
-          </div>
-        )}
-
-        {currentUniverse === 'page-ai' && (
-          <div className="mb-8 p-6 bg-gradient-to-r from-cyan-900/20 to-blue-900/20 rounded-xl border border-cyan-500/30">
-            <h3 className="text-2xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-              🤖 AI Page Generator
-            </h3>
-            <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Describe your universe..."
-                className="w-full p-3 bg-black/40 rounded-lg border border-cyan-500/30 focus:border-cyan-400 outline-none"
-              />
-              <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-semibold hover:opacity-90 transition-opacity">
-                Generate Universe
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Posts */}
-        <div className="space-y-6">
-          {posts.filter(post => currentUniverse === 'feed' || post.universe === currentUniverse).map((post) => (
-            <motion.article
-              key={post.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.01 }}
-              className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden"
-            >
-              {/* Post Header */}
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center space-x-3">
-                  <img
-                    src={post.avatar}
-                    alt={post.author}
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div>
-                    <p className="font-semibold">{post.author}</p>
-                    <p className="text-xs text-gray-400">{post.time}</p>
-                  </div>
-                </div>
-                <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                  <MoreHorizontal className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Post Content */}
-              <div className="px-4 pb-3">
-                <p className="text-sm">{post.content}</p>
-              </div>
-
-              {/* Post Image */}
-              {post.image && (
-                <img
-                  src={post.image}
-                  alt="Post"
-                  className="w-full"
-                />
-              )}
-
-              {/* Actions */}
-              <div className="flex items-center justify-between p-4 border-t border-gray-800">
-                <div className="flex items-center space-x-4">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => handleLike(post.id)}
-                    className={`flex items-center space-x-2 transition-colors ${
-                      likedPosts.has(post.id) ? 'text-red-500' : 'hover:text-red-500'
-                    }`}
-                  >
-                    <Heart className={`w-5 h-5 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
-                    <span className="text-sm">{likedPosts.has(post.id) ? post.likes + 1 : post.likes}</span>
-                  </motion.button>
-                  <button className="flex items-center space-x-2 hover:text-blue-500 transition-colors">
-                    <MessageCircle className="w-5 h-5" />
-                    <span className="text-sm">{post.comments}</span>
-                  </button>
-                  <button className="hover:text-purple-500 transition-colors">
-                    <Send className="w-5 h-5" />
-                  </button>
-                </div>
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => handleBookmark(post.id)}
-                  className={`transition-colors ${
-                    bookmarkedPosts.has(post.id) ? 'text-yellow-500' : 'hover:text-yellow-500'
-                  }`}
-                >
-                  <Bookmark className={`w-5 h-5 ${bookmarkedPosts.has(post.id) ? 'fill-current' : ''}`} />
-                </motion.button>
-              </div>
-            </motion.article>
-          ))}
-        </div>
-      </motion.div>
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Top Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 bg-gray-950/80 backdrop-blur-xl border-b border-gray-800 z-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                superNova_2177
-              </h1>
+    <>
+      <style jsx global>{`
+        body {
+          margin: 0;
+          background: black;
+          color: white;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+          overflow-x: hidden;
+        }
+
+        .multiverse-container {
+          position: relative;
+          min-height: 100vh;
+          overflow: hidden;
+        }
+
+        .stars {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-image: 
+            radial-gradient(2px 2px at 20px 30px, white, transparent),
+            radial-gradient(2px 2px at 40px 70px, white, transparent),
+            radial-gradient(1px 1px at 50px 50px, white, transparent),
+            radial-gradient(1px 1px at 80px 10px, white, transparent),
+            radial-gradient(2px 2px at 130px 80px, white, transparent);
+          background-repeat: repeat;
+          background-size: 200px 200px;
+          opacity: 0.3;
+          animation: drift 20s linear infinite;
+        }
+
+        .stars::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-position: 100px 100px;
+          animation-duration: 30s;
+          animation-direction: reverse;
+          opacity: 0.2;
+        }
+
+        @keyframes drift {
+          from { transform: translate(0, 0); }
+          to { transform: translate(-200px, -200px); }
+        }
+
+        .portal {
+          position: absolute;
+          top: 10%;
+          right: 10%;
+          width: 150px;
+          height: 150px;
+          border-radius: 50%;
+          background: conic-gradient(from 0deg, #ff006e, #8338ec, #3a86ff, #06ffa5, #ffbe0b, #fb5607, #ff006e);
+          animation: spin 3s linear infinite;
+          filter: blur(20px);
+          opacity: 0.7;
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        .content-wrapper {
+          position: relative;
+          z-index: 1;
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 24px;
+        }
+
+        .back-link {
+          display: inline-block;
+          padding: 12px 20px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 50px;
+          color: white;
+          text-decoration: none;
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: translateX(-5px);
+          box-shadow: 0 0 30px rgba(138, 56, 236, 0.5);
+        }
+
+        h1 {
+          font-size: 4rem;
+          font-weight: 800;
+          margin: 30px 0;
+          text-align: center;
+          text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #8338ec, 0 0 40px #8338ec;
+          animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+          from { text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #8338ec, 0 0 40px #8338ec; }
+          to { text-shadow: 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #8338ec, 0 0 50px #8338ec; }
+        }
+
+        .feed-container {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .feed-card {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          padding: 30px;
+          backdrop-filter: blur(10px);
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s ease;
+        }
+
+        .feed-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(138, 56, 236, 0.3), transparent);
+          transition: left 0.5s ease;
+        }
+
+        .feed-card:hover::before {
+          left: 100%;
+        }
+
+        .feed-card:hover {
+          transform: translateY(-5px);
+          border-color: rgba(138, 56, 236, 0.5);
+          box-shadow: 0 10px 40px rgba(138, 56, 236, 0.3);
+        }
+
+        .feed-card h3 {
+          font-size: 1.5rem;
+          margin-bottom: 10px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        .feed-card p {
+          color: rgba(255, 255, 255, 0.8);
+          line-height: 1.6;
+        }
+
+        .particle {
+          position: fixed;
+          pointer-events: none;
+          border-radius: 50%;
+          opacity: 0;
+          z-index: 1000;
+        }
+
+        .particle.active {
+          animation: float-up 3s ease-out forwards;
+        }
+
+        @keyframes float-up {
+          0% { opacity: 0; transform: translateY(0) scale(0); }
+          20% { opacity: 1; transform: translateY(-20px) scale(1); }
+          100% { opacity: 0; transform: translateY(-200px) scale(0.5); }
+        }
+
+        .floating-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(40px);
+          animation: float 10s ease-in-out infinite;
+        }
+
+        .orb1 {
+          width: 300px;
+          height: 300px;
+          background: radial-gradient(circle, rgba(138, 56, 236, 0.4) 0%, transparent 70%);
+          top: -100px;
+          left: -100px;
+          animation-duration: 15s;
+        }
+
+        .orb2 {
+          width: 200px;
+          height: 200px;
+          background: radial-gradient(circle, rgba(0, 191, 255, 0.4) 0%, transparent 70%);
+          bottom: -50px;
+          right: -50px;
+          animation-duration: 20s;
+          animation-delay: 5s;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          25% { transform: translate(30px, -30px) scale(1.1); }
+          50% { transform: translate(-20px, 20px) scale(0.9); }
+          75% { transform: translate(20px, 30px) scale(1.05); }
+        }
+      `}</style>
+
+      <div className="multiverse-container">
+        <div className="stars"></div>
+        <div className="portal"></div>
+        <div className="floating-orb orb1"></div>
+        <div className="floating-orb orb2"></div>
+
+        <div className="content-wrapper">
+          <Link href="/" className="back-link">
+            ← Back to Reality
+          </Link>
+
+          <h1>MULTIVERSE FEED</h1>
+
+          <div className="feed-container">
+            <div className="feed-card">
+              <h3>Reality #2177: The Neon Dimension</h3>
+              <p>In this reality, consciousness flows through digital streams. The boundaries between thought and code have dissolved. Every interaction creates ripples across parallel universes.</p>
             </div>
 
-            {/* Search Bar */}
-            <div className={`hidden md:flex items-center bg-gray-900 rounded-xl px-4 py-2 transition-all duration-200 ${searchFocused ? 'w-96 ring-2 ring-purple-500' : 'w-64'}`}>
-              <Search className="w-4 h-4 text-gray-400 mr-2" />
-              <input
-                type="text"
-                placeholder="Search universes..."
-                className="bg-transparent outline-none text-sm flex-1 placeholder-gray-500"
-                onFocus={() => setSearchFocused(true)}
-                onBlur={() => setSearchFocused(false)}
-              />
+            <div className="feed-card">
+              <h3>Quantum Entanglement Alert</h3>
+              <p>Multiple timelines are converging at this exact moment. Observers report seeing their alternate selves in reflections. The fabric of spacetime feels unusually thin today.</p>
             </div>
 
-            {/* Right Actions */}
-            <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                <Home className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                <MessageSquare className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                <Plus className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-              </button>
-              
-              {/* Profile Picture - Triggers Sidebar */}
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-purple-500 hover:ring-purple-400 transition-all"
-              >
-                <img
-                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=taha"
-                  alt="Profile"
-                  className="w-full h-full"
-                />
-              </button>
+            <div className="feed-card">
+              <h3>Portal Discovery: Dimension X-99</h3>
+              <p>A new gateway has been discovered leading to a universe where physics works backwards. Time flows in reverse, gravity pushes instead of pulls, and light creates shadows.</p>
+            </div>
+
+            <div className="feed-card">
+              <h3>Cosmic Message Intercepted</h3>
+              <p>Strange signals from the void. The message repeats: "The observer changes the observed. Reality is what you make it. Break free from the simulation."</p>
+            </div>
+
+            <div className="feed-card">
+              <h3>Multiverse Weather Report</h3>
+              <p>Expect dimensional storms in sectors 7 through 12. Probability fluctuations may cause temporary reality glitches. Keep your quantum anchors secured.</p>
             </div>
           </div>
         </div>
-      </nav>
-
-      {/* Sidebar Overlay */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Sliding Sidebar */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            ref={sidebarRef}
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-80 bg-gray-950 border-l border-gray-800 z-50 overflow-y-auto"
-          >
-            <div className="p-6">
-              {/* Close Button */}
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="absolute top-4 right-4 p-2 hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              {/* Profile Section */}
-              <div className="mb-8">
-                <div className="flex items-center space-x-4 mb-6">
-                  <img
-                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=taha"
-                    alt="Profile"
-                    className="w-16 h-16 rounded-full ring-2 ring-purple-500"
-                  />
-                  <div>
-                    <h3 className="font-bold text-lg">taha_gungor</h3>
-                    <p className="text-gray-400 text-sm">CEO / test_tech</p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-900 rounded-xl">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-purple-400">2.4K</p>
-                    <p className="text-xs text-gray-400">Profile Views</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-pink-400">1.6K</p>
-                    <p className="text-xs text-gray-400">Impressions</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Universe Navigation */}
-              <div className="space-y-1 mb-6">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Universes</p>
-                {universes.map((universe) => (
-                  <motion.button
-                    key={universe.id}
-                    whileHover={{ x: 4 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      setCurrentUniverse(universe.id);
-                      setSidebarOpen(false);
-                    }}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                      currentUniverse === universe.id
-                        ? 'bg-purple-500/20 text-purple-400'
-                        : 'hover:bg-gray-800 text-gray-300'
-                    }`}
-                  >
-                    <universe.icon className="w-5 h-5" />
-                    <span className="font-medium">{universe.label}</span>
-                  </motion.button>
-                ))}
-              </div>
-
-              {/* Premium Section */}
-              <div className="space-y-1 mb-6">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Premium</p>
-                <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-800 text-gray-300 transition-all">
-                  <Music className="w-5 h-5" />
-                  <span className="font-medium">Music</span>
-                </button>
-                <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-800 text-gray-300 transition-all">
-                  <Rocket className="w-5 h-5" />
-                  <span className="font-medium">Agents</span>
-                </button>
-              </div>
-
-              {/* Settings */}
-              <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-800 text-gray-300 transition-all">
-                <Settings className="w-5 h-5" />
-                <span className="font-medium">Settings</span>
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 pt-24 pb-20">
-        <AnimatePresence mode="wait">
-          {renderUniverse()}
-        </AnimatePresence>
-      </main>
-    </div>
+      </div>
+    </>
   );
 }
-
