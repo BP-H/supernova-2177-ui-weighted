@@ -17,14 +17,11 @@ import {
 import styles from './HomePage.module.css';
 
 // --- 3D Background Component ---
-// This creates the interactive, rotating starfield.
 function Stars3D(props) {
   const ref = useRef();
-  // Generate 5000 random points in a sphere
   const [sphere] = useState(() => random.inSphere(new Float32Array(5000), { radius: 1.2 }));
 
   useFrame((state, delta) => {
-    // Animate the rotation on every frame
     ref.current.rotation.x -= delta / 10;
     ref.current.rotation.y -= delta / 15;
   });
@@ -45,8 +42,6 @@ function Stars3D(props) {
 }
 
 // --- UI Sub-Components ---
-
-// A reusable component for navigation links in the sidebar
 const NavLink = ({ href, icon: Icon, children }) => (
   <Link href={href} className={styles.navLink}>
     <Icon size={20} />
@@ -54,7 +49,6 @@ const NavLink = ({ href, icon: Icon, children }) => (
   </Link>
 );
 
-// The Sidebar component, inspired by your ui.py file
 function Sidebar() {
   const navItems = useMemo(() => [
     { href: '/', icon: Home, label: 'Feed' },
@@ -78,7 +72,6 @@ function Sidebar() {
   );
 }
 
-// The component for a single, clickable feed card
 function FeedCard({ title, content, href }) {
   return (
     <Link href={href} className={styles.feedCardLink}>
@@ -91,16 +84,13 @@ function FeedCard({ title, content, href }) {
 }
 
 // --- Main Page Component ---
-// This orchestrates the entire page.
 export default function HomePage() {
   const [feedData, setFeedData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Apply global body style when the component mounts
     document.body.className = styles.globalBody;
 
-    // Fetch data from our new Next.js API route
     fetch('/api/feed')
       .then((res) => res.json())
       .then((apiResponse) => {
@@ -112,11 +102,10 @@ export default function HomePage() {
         setIsLoading(false);
       });
 
-    // Cleanup function to remove the global style when the component unmounts
     return () => {
       document.body.className = '';
     };
-  }, []); // The empty array ensures this runs only once on page load
+  }, []);
 
   return (
     <div className={styles.pageLayout}>
@@ -130,7 +119,16 @@ export default function HomePage() {
           </Canvas>
         </div>
         <div className={styles.contentWrapper}>
-          <h1 className={styles.pageTitle}>MULTIVERSE FEED</h1>
+          <h1 className={styles.pageTitle}>
+            <a
+              href="https://superNova2177.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'inherit', textDecoration: 'none' }}
+            >
+              superNova2177.com
+            </a>
+          </h1>
           {isLoading ? (
             <p style={{ textAlign: 'center' }}>Loading feed from the cosmos...</p>
           ) : (
@@ -140,7 +138,7 @@ export default function HomePage() {
                   key={item.id}
                   title={item.title}
                   content={item.content}
-                  href={`/reality/${item.id}`} // Link to a dynamic page
+                  href={`/reality/${item.id}`}
                 />
               ))}
             </div>
