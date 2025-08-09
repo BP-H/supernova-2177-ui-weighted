@@ -1,3 +1,5 @@
+import { api } from "@/lib/api";
+
 export async function api(path: string, init?: RequestInit) {
   const stateRaw = typeof window !== "undefined" ? localStorage.getItem("sn2177:state") : null;
   const state = stateRaw ? JSON.parse(stateRaw) : {};
