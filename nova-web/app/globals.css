@@ -100,3 +100,29 @@ body{margin:0; background:var(--bg); color:var(--text); font-family: ui-sans-ser
 .sn-quick button:hover{border-color:#394156; box-shadow:0 0 0 2px var(--ring) inset}
 
 .sn-content{padding:18px}
+
+/* ---- force light theme everywhere ---- */
+:root { color-scheme: light; }  /* tells browsers to prefer light UI chrome */
+
+html, body, main, #__next, .sn-root, .sn-main, .sn-content {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+/* ensure panels/cards/inputs don’t re-darken */
+.sn-sidebar, .sn-card, .sn-post,
+.sn-quick button, .sn-pill, .sn-input,
+.sn-actions button {
+  background: var(--panel) !important;
+  color: var(--text) !important;
+  border-color: var(--stroke) !important;
+}
+
+/* if you have a starfield canvas or div, keep it subtle */
+canvas#starfield, .starfield {
+  opacity: .15;
+  pointer-events: none;
+  background: transparent !important;
+  position: fixed; inset: 0; z-index: -1;
+}
+
