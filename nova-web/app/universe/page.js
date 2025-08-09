@@ -1,8 +1,11 @@
+"use client";
+import Universe3D from "@/components/Universe3D";
+
 export default function UniversePage() {
   return (
-    <div className="sn-post">
-      <div style={{ fontWeight: 700 }}>Universe</div>
-      <div style={{ opacity: 0.8 }}>3D scene coming soon.</div>
-    </div>
+    <main className="sn-content">
+      <h2>Universe</h2>
+      <Universe3D />
+    </main>
   );
 }
