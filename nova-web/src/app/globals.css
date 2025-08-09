@@ -1,0 +1,16 @@
+.logo-text {
+  font-family: 'Orbitron', sans-serif; /* or a similar futuristic font */
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 4rem);
+  color: white;
+  text-transform: lowercase;
+  letter-spacing: 1px;
+
+  /* Neon double glow */
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.9),
+    0 0 12px rgba(255, 62, 191, 0.8),  /* pink */
+    0 0 20px rgba(62, 203, 255, 0.7),  /* blue */
+    0 0 30px rgba(255, 62, 191, 0.6),
+    0 0 45px rgba(62, 203, 255, 0.5);
+}
