@@ -1,17 +1,17 @@
-:root{
+:root {
   /* Palette — 80% white UI, subtle midnight bg, pink/blue accents */
-  --bg:#0b0e14;
-  --panel:#0f1117;
-  --panel-2:#11131d;
-  --card:#121623;
+  --bg:#f5f7fb;        /* main background near-white */
+  --panel:#ffffff;     /* panel background */
+  --panel-2:#f0f2f7;   /* lighter secondary panel */
+  --card:#ffffff;      /* card background */
 
-  --text:#f5f7fb;     /* near-white */
-  --muted:#a7afbf;    /* soft gray-blue */
-  --stroke:#242c3d;   /* hairline borders */
+  --text:#0b0e14;      /* dark text */
+  --muted:#4a4f5a;     /* muted gray text */
+  --stroke:#d1d5db;    /* soft borders */
 
   --pink:#ff4fd8;
   --blue:#5de1ff;
-  --brand:#ffffff;
+  --brand:#0b0e14;
 
   --ring: rgba(93,225,255,.35);
 }
