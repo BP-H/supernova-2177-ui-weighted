@@ -1,5 +1,4 @@
-import { api } from "@/lib/api";
-
+// nova-web/src/lib/api.ts
 export async function api(path: string, init?: RequestInit) {
   const stateRaw = typeof window !== "undefined" ? localStorage.getItem("sn2177:state") : null;
   const state = stateRaw ? JSON.parse(stateRaw) : {};
@@ -7,8 +6,7 @@ export async function api(path: string, init?: RequestInit) {
   const base = state.backendUrl || process.env.NEXT_PUBLIC_BACKEND_URL || "";
 
   if (!useReal || !base) {
-    // demo payload
-    return { ok: true, json: async () => ({ demo: true }) } as Response as any;
+    return { ok: true, json: async () => ({ demo: true }) } as unknown as Response;
   }
 
   const url = base.replace(/\/+$/, "") + path;
