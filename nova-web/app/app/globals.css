@@ -16,6 +16,24 @@
   --ring: rgba(93,225,255,.35);
 }
 
+.logo-text {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 4rem);
+  color: white;
+  text-transform: lowercase;
+  letter-spacing: 1px;
+
+  /* Soft multi-color neon */
+  text-shadow:
+    0 0 4px rgba(255, 255, 255, 0.9),  /* core white */
+    0 0 8px rgba(255, 182, 255, 0.8),  /* pink */
+    0 0 12px rgba(100, 200, 255, 0.8), /* blue */
+    0 0 20px rgba(255, 182, 255, 0.6), /* pink outer */
+    0 0 30px rgba(100, 200, 255, 0.6); /* blue outer */
+}
+
+
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
