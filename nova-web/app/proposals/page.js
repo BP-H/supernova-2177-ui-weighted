@@ -18,12 +18,12 @@ export default function ProposalsPage() {
   }, []);
 
   return (
-    <div style={{ display:"grid", gap:12 }}>
+    <div style={{ display: "grid", gap: 12 }}>
       <h2>Proposals</h2>
       {items.map(p => (
         <div key={p.id} className="sn-post">
-          <div style={{ fontWeight:700 }}>{p.title}</div>
-          <div style={{ opacity:.8 }}>{p.desc || p.description}</div>
+          <div style={{ fontWeight: 700 }}>{p.title}</div>
+          <div style={{ opacity: .8 }}>{p.desc || p.description}</div>
           <div className="sn-actions">
             <button onClick={() => alert("👍 upvote (wire to /votes)")}>👍 Upvote</button>
             <button onClick={() => alert("👎 downvote (wire to /votes)")}>👎 Downvote</button>
