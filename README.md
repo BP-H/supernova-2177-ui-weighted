@@ -1,6 +1,8 @@
 
 
-# superNova_2177/ .[![CLICK HERE FOR THE PROTOCOL].(https://github.com/BP-H/supernova-2177-ui-weighted/blob/main/superNova_2177.py)] ⚡️🌌🎶🚀🌸🔬
+# superNova_2177/ **Priticil File:**  
+[superNova_2177.py →](https://github.com/BP-H/supernova-2177-ui-weighted/blob/main/superNova_2177.py)
+ ⚡️🌌🎶🚀🌸🔬
 STRICTLY A SOCIAL MEDIA PLATFORM  
 Intellectual Property & Artistic Inspiration  
 Legal & Ethical Safeguards
